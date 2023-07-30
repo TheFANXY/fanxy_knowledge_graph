@@ -458,7 +458,9 @@ docker ps [OPTIONS]
 
 ![37option.png](./Docker.assets/37option.png)
 
-**这里测试过，删了的容器没法显示**
+**这里测试过，删了的容器没法显示，但查历史容器还能查到**
+
+**这里是ps把启动命令等信息过滤的操作 可以清晰显示 ：**https://liyangweb.com/service/339.html
 
 ### 3.3.3. 退出容器
 
@@ -598,7 +600,7 @@ docker exec -it 容器ID redis-cli
 
 #### 6. 从容器内拷贝文件到主机上
 
-容器→主机
+**容器→主机**
 
 ```shell
 docker cp  【容器ID】:【容器内路径】 【目的主机路径】
@@ -908,13 +910,11 @@ apt-get install net-tools
 docker commit -m="提交的描述信息" -a="作者" 容器ID 要创建的目标镜像名:[标签名]
 ```
 
-命令：在容器外执行，记得
+命令：在容器外执行，记得启动我们的新镜像并和原来的对比
 
 ```sh
 docker commit -m="ifconfig cmd add" -a="fanxy" a69d7c825c4f fanxy/ubuntu:1.0
 ```
-
-启动我们的新镜像并和原来的对比
 
 ### 6.2.4. curl验证私服库上有什么镜像
 
@@ -936,13 +936,15 @@ docker   tag   镜像:Tag   Host:Port/Repository:Tag
 
 **自己host主机IP地址，填写同学你们自己的，不要粘贴错误，O(∩_∩)O，这里就不再提醒了，我是在我的腾讯云服务器上部署运行的，用的是公网ip，操作完全相同，同时自己的windows虚拟机也可以从对应的地方获取镜像**
 
-使用命令 docker tag 将zzyyubuntu:1.2 这个镜像修改为192.168.111.162:5000/myubuntu:1.2
+使用命令 docker tag 将fanxy/ubuntu:1.0 这个镜像修改为192.168.111.162:5000/fanxy/ubuntu:1.0
 
 ```sh
-docker tag  fanxy/ubuntu:1.0  192.168.111.162:5000/fanxy/ubuntu:1.0
+docker tag  fanxy/ubuntu:1.0  192.168.110.100:5000/fanxy/ubuntu:1.0
 ```
 
 ### 6.2.6. 修改配置文件使之支持http
+
+这里ip填写主机，即部署了docker 注册中心的机器的ip
 
 ```sh
 "insecure-registries": ["192.168.111.162:5000"]
@@ -1045,7 +1047,7 @@ docker inspect 容器ID
 
 ### 7.4.2. 读写规则映射添加说明
 
-**独写是默认的**
+**读写是默认的**
 
 ![61读写.png](./Docker.assets/61读写.png)
 
@@ -1295,27 +1297,47 @@ create table bb(id int, name varchar(20));
 
 ## 8.4. 安装Redis
 
+### 8.4.1. 基本拉取运行
 
+```sh
+docker run -d -p 6379:6379 redis:6.0.8
+```
 
+```sh
+docker exec -it fa209ee820 /bin/bash
+```
 
+**运行起来可以直接通过redis基本命令操作**
 
+```sh
+redis-cli
+```
 
+**但是这个安装方式也是没有本机的挂载配置文件，故只是个基本运行的demo**
 
+### 8.4.2. 数据卷安装
 
+**<font color='bb000'>命令提醒：容器卷记得加入--privileged=true。</font>**
 
+**Docker挂载主机目录Docker访问出现cannot open directory .: Permission denied**
 
+**解决办法：在挂载目录后多加一个--privileged=true参数即可**
 
+**<font color='bb000'>在CentOS宿主机下新建目录/fanxyuse/redis</font>**
 
+```sh
+mkdir -p /fanxyuse/redis
+```
 
+**将一个redis.conf原版配置文件模板拷贝进/fanxyuse/redis目录下**
 
+**完整版运行命令**
 
+```sh
+docker run  -p 6379:6379 --name myredis7 --privileged=true -v /fanxyuse/redis/redis.conf:/etc/redis/redis.conf -v /fanxyuse/redis/data:/data -d redis:6.0.8 redis-server /etc/redis/redis.conf
+```
 
-
-
-
-
-
-
+![69测试连接.png](./Docker.assets/69测试连接.png)
 
 ## 8.5. 安装Nginx【见高级篇】
 
