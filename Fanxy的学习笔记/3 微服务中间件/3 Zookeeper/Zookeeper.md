@@ -2,9 +2,9 @@
 
 ## **1.1. 概述**
 
-Zookeeper 是一个开源的分布式的，为分布式框架提供协调服务的 Apache 项目
+`Zookeeper` 是一个开源的分布式的，为分布式框架提供协调服务的 `Apache` 项目
 
-Zookeeper从设计模式角度来理解：是一个基于观察者模式设计的分布式服务管理框架，它负责存储和管理大家都关心的数据，然 后接受观察者的注册，一旦这些数据的状态发生变化，Zookeeper就 将负责通知已经在Zookeeper上注册的那些观察者做出相应的反应。
+`Zookeeper` 从设计模式角度来理解：是一个基于观察者模式设计的分布式服务管理框架，它负责存储和管理大家都关心的数据，然 后接受观察者的注册，一旦这些数据的状态发生变化，`Zookeeper`就将负责通知已经在`Zookeeper`上注册的那些观察者做出相应的反应。
 
 ## 1.2. 特点
 
@@ -82,7 +82,7 @@ https://zookeeper.apache.org/
 
 ## 2.2. 配置参数解读
 
-Zookeeper中的配置文件zoo.cfg中参数含义解读如下：
+Zookeeper中的配置文件`zoo.cfg`中参数含义解读如下：
 
 **1）`tickTime` = 2000：通信心跳时间，Zookeeper服务器与客户端心跳时间，单位毫秒**
 
@@ -94,9 +94,9 @@ Zookeeper中的配置文件zoo.cfg中参数含义解读如下：
 
 # **第** **3** **章** **Zookeeper** **集群操作**
 
-## **3.1.** **集群操作**
+## **3.1.** 集群操作
 
-### **3.1.1.** **集群安装**
+### **3.1.1.** 集群安装
 
 ![14集群安装.png](./Zookeeper.assets/14集群安装.png)
 
@@ -318,11 +318,11 @@ create -s
 
 **2）节点的子节点变化监听（路径变化）**
 
-（1）在 hadoop104 主机上注册监听/sanguo 节点的子节点变化
+（1）在 hadoop104 主机上注册监听`/sanguo` 节点的子节点变化
 
 ![28监听3.png](./Zookeeper.assets/28监听3.png)
 
-### **3.2.5 节点删除与查看**
+### 3.2.5 节点删除与查看
 
 ![29删除.png](./Zookeeper.assets/29删除.png)
 
@@ -371,11 +371,11 @@ log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
 log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n
 ```
 
-**4）创建包名com.atguigu.zk**
+**4）创建包名com.fanxy.zk**
 
 **5）创建类名称zkClient**
 
-### **3.3.2.** **创建** **ZooKeeper** **客户端**
+### **3.3.2.** 创建 `ZooKeeper` 客户端
 
 ```java
 public class ZooKeeperClient {
@@ -426,11 +426,11 @@ public class ZooKeeperClient {
 
 **Junit的Thread.sleep期间还能执行当前线程的回调函数吗？**
 
-可以执行。Thread.sleep只会使当前线程休眠，不会影响其他线程的执行。如果有回调函数在当前线程中注册，那么它们仍然会被执行。
+可以执行。`Thread.sleep`只会使当前线程休眠，不会影响其他线程的执行。如果有回调函数在当前线程中注册，那么它们仍然会被执行。
 
 此时我们对监听的 "`/`" 下进行节点的添加等操作，会被监听到，并调用回调函数，将当前 "`/`" 下的子节点都遍历打印出来。
 
-### 3.3.5. 判断 Znode 是否存在
+### 3.3.5. 判断 `Znode` 是否存在
 
 这里记得把上面的监听器注释掉，可以看的清楚一些。
 
@@ -454,9 +454,9 @@ public class ZooKeeperClient {
 
 <img src="./Zookeeper.assets/31发送给Follow节点.png" alt="31发送给Follow节点.png" style="zoom: 50%;" />
 
-# **第** **4** **章** **服务器动态上下线监听案例**
+# **第** **4** **章** 服务器动态上下线监听案例
 
-## **4.1.** **需求**
+## **4.1.** 需求
 
 某分布式系统中，主节点可以有多台，可以动态上下线，任意一台客户端都能实时感知到主节点服务器的上下线。
 

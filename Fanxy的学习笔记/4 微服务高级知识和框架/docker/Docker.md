@@ -1226,7 +1226,7 @@ SHOW VARIABLES LIKE 'character%'
 1. **新建mysql容器实例，密码自己写**
 
 ```sh
-docker run -d -p 3306:3306 --privileged=true -v /fanxyuse/mysql/log:/var/log/mysql -v /fanxyuse/mysql/data:/var/lib/mysql -v /fanxyuse/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123456  --name mysql57 mysql:5.7
+docker run -d -p 3306:3306 --privileged=true -v /fanxyuse/mysql/log:/var/log/mysql -v /fanxyuse/mysql/data:/var/lib/mysql -v /fanxyuse/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123456  --name mysql57 mysql:8
 ```
 
 2. **新建my.cnf**
@@ -1334,7 +1334,7 @@ mkdir -p /fanxyuse/redis
 **完整版运行命令**
 
 ```sh
-docker run  -p 6379:6379 --name myredis7 --privileged=true -v /fanxyuse/redis/redis.conf:/etc/redis/redis.conf -v /fanxyuse/redis/data:/data -d redis:6.0.8 redis-server /etc/redis/redis.conf
+docker run  -p 6379:6379 --name redis7 --privileged=true -v /fanxyuse/redis/redis.conf:/etc/redis/redis.conf -v /fanxyuse/redis/data:/data -d redis:7 redis-server /etc/redis/redis.conf
 ```
 
 ![69测试连接.png](./Docker.assets/69测试连接.png)
