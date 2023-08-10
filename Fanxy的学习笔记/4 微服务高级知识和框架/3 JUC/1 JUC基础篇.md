@@ -80,9 +80,9 @@ Thread.State
 
 ## 1.5 管程 
 
-管程(monitor)是保证了同一时刻只有一个进程在管程内活动,即管程内定义的操作在同一时刻只被一个进程调用(由编译器实现).
+管程(monitor)是保证了同一时刻只有一个进程在管程内活动,即管程内定义的操作在同一时刻只被一个进程调用(由编译器实现)
 
-但是这样并不能保证进程以设计的顺序执行JVM 中同步是基于进入和退出管程(monitor)对象实现的，每个对象都会有一个管程(monitor)对象，管程(monitor)会随着 java 对象一同创建和销毁执行线程首先要持有管程对象，然后才能执行方法，当方法完成之后会释放管程，方法在执行时候会持有管程，其他线程无法再获取同一个管程
+但是这样并不能保证进程以设计的顺序执行 JVM 中同步是基于进入和退出管程(monitor)对象实现的，每个对象都会有一个管程(monitor)对象，管程(monitor)会随着 java 对象一同创建和销毁执行线程首先要持有管程对象，然后才能执行方法，当方法完成之后会释放管程，方法在执行时候会持有管程，其他线程无法再获取同一个管程
 
 ## 1.6 用户线程和守护线程 
 
@@ -242,32 +242,28 @@ lock()方法是平常使用得最多的一个方法，就是用来获取锁。�
         lock.unlock(); //释放锁
     }
 	// ----------------
-}    
+}
 ```
 
 ### 2.2.3 newCondition
 
 关键字 synchronized 与 wait()/notify()这两个方法一起使用可以实现等待/通知模式， Lock 锁的 newContition()方法返回 Condition 对象，Condition 类也可以实现等待/通知模式。
 
-用 notify()通知时，JVM 会随机唤醒某个等待的线程， 使用 Condition 类可以
-
-进行选择性通知， Condition 比较常用的两个方法：
+用 notify()通知时，JVM 会随机唤醒某个等待的线程， 使用 Condition 类可以进行选择性通知， Condition 比较常用的两个方法：
 
 - await()会使当前线程等待,同时会释放锁,当其他线程调用 signal()时,线程会重新获得锁并继续执行。
 
 - signal()用于唤醒一个等待的线程。
 
-**注意**：在调用 Condition 的 await()/signal()方法前，也需要线程持有相关的 Lock 锁，调用 await()后线程会释放这个锁，在 singal()调用后会从当前Condition 对象的等待队列中，唤醒 一个线程，唤醒的线程尝试获得锁， 一旦
-
-获得锁成功就继续执行。
+**注意**：在调用 Condition 的 await()/signal()方法前，也需要线程持有相关的 Lock 锁，调用 await()后线程会释放这个锁，在 singal()调用后会从当前Condition 对象的等待队列中，唤醒 一个线程，唤醒的线程尝试获得锁， 一旦获得锁成功就继续执行。
 
 ## 2.3 ReentrantLock
 
 ReentrantLock，意思是“可重入锁”，关于可重入锁的概念将在后面讲述。
 
-ReentrantLock 是唯一实现了 Lock 接口的类，并且 ReentrantLock 提供了更多的方法。下面通过一些实例看具体看一下如何使用
+ReentrantLock 是唯一实现了 Lock 接口的类，并且 ReentrantLock 提供了更多的方法。下面通过一些实例看具体看一下如何使用。
 
-**可重入锁**指的是同一个线程可无限次地进入同一把锁的不同代码，又因该锁通过线程独占共享资源的方式确保并发安全，又称为**独占锁**。**可重入指的是已经获得该锁了，但在代码块里还能接着获得该锁，只是后面也要释放两次该锁。<font color='bb000'>下面这个例子并没有体现这一点，但zookeeper的笔记有一个帮助生成关于zookeeper锁的那里有代码，那个锁的案例是展示了多次上锁和对应次数释放锁的操作</font>**
+**可重入锁**指的是同一个线程可无限次地进入同一把锁的不同代码，又因该锁通过线程独占共享资源的方式确保并发安全，又称为**独占锁**。**可重入指的是已经获得该锁了，但在代码块里还能接着获得该锁，只是后面也要释放两次该锁。<font color='bb000'>下面这个例子并没有体现这一点，但zookeeper的笔记有一个帮助生成关于zookeeper锁的那里有代码，那个锁的案例是展示了多次上锁和对应次数释放锁的操作。</font>**
 
 举个例子：同一个类中的synchronize关键字修饰了不同的方法。synchronize是内置的隐式的可重入锁，例子中的两个方法使用的是同一把锁，只要能执行testB()也就说明线程拿到了锁，所以执行testA()方法就不用被阻塞等待获取锁了；如果不是同一把锁或非可重入锁，就会在执行testA()时被阻塞等待。
 
@@ -356,9 +352,7 @@ public class LTicketSale {
 
 # 3 线程间通信 
 
-线程间通信的模型有两种：共享内存和消息传递，以下方式都是基本这两种模
-
-型来实现的。我们来基本一道面试常见的题目来分析
+线程间通信的模型有两种：共享内存和消息传递，以下方式都是基本这两种模型来实现的。我们来基本一道面试常见的题目来分析
 
 **场景---两个线程，一个线程对当前数值加 1，另一个线程对当前数值减 1,要求用线程间通信**
 
@@ -541,9 +535,7 @@ public class ThreadDemo2 {
 
 ### 3.3.1 案例介绍 
 
-**问题: A 线程打印 5 次 A，B 线程打印 10 次 B，C 线程打印 15 次 C,按照**
-
-**此顺序循环 10 轮**
+**问题: A 线程打印 5 次 A，B 线程打印 10 次 B，C 线程打印 15 次 C,按照此顺序循环 10 轮**
 
 **<font color='bb000'>这里定义 flag 是为了线程阻塞的时候，能按情况进行阻塞，如果flag不到达合法值就一直等待被唤醒，而为什么设置三个`condition`，是因为唤醒的时候就不用使用 `signalAll`了，要不然还要全部唤醒，进入二次竞争，然后再次等待，每进行一次唤醒，就进行一次竞争行为，效率降低。</font>**
 
@@ -1045,7 +1037,421 @@ BB :: TestB
 
 **针对条件4：可以将资源改为线性顺序。申请资源时，先申请序号较小的，这样避免循环等待问题。**
 
-# 6 Callable&Future 接口
+```java
+public class DeadLock {
+
+    public static void main(String[] args) {
+        Object a = new Object();
+        Object b = new Object();
+
+        new Thread(()-> {
+            synchronized (a){
+                System.out.println(Thread.currentThread().getName() + 
+                                   " 持有锁 a 想要持有锁 b");
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                synchronized (b){
+                    System.out.println(Thread.currentThread().getName() +
+                                       " 持有锁 a b 线程死亡");
+                }
+            }
+        }, "A").start();
+
+        new Thread(()-> {
+            synchronized (b){
+                System.out.println(Thread.currentThread().getName() + 
+                                   " 持有锁 b 想要持有锁 a");
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                synchronized (a){
+                    System.out.println(Thread.currentThread().getName() + 
+                                       " 持有锁 a b 线程死亡");
+                }
+            }
+        }, "B").start();
+    }
+}
+```
+
+**验证是否死锁**
+
+**1 jps** 
+
+**如果没有给 jps.exe 配置到环境变量需要自行前往jdk目录使用命令**
+
+```sh
+jps -l
+```
+
+![7.png](./1 JUC基础篇.assets/7.png)
+
+**2 jstack**
+
+```sh
+jstack 23604
+```
+
+![8.png](./1 JUC基础篇.assets/8.png)
+
+# 6 Callable & Future 接口
+
+## 6.1 Callable 接口
+
+目前我们学习了有两种创建线程的方法-一种是通过创建 Thread 类，另一种是通过使用 Runnable 创建线程。但是，Runnable 缺少的一项功能是，当线程终止时（即 run（）完成时），我们无法使线程返回结果。为了支持此功能，Java 中提供了 Callable 接口。
+
+==**现在我们学习的是创建线程的第三种方案---Callable 接口**==
+
+**Callable 接口的特点如下(重点)**
+
+- 为了实现 Runnable，需要实现不返回任何内容的 run（）方法，而对于Callable，需要实现在完成时返回结果的 call（）方法。
+
+- call（）方法可以引发异常，而 run（）则不能。
+
+- 为实现 Callable 而必须重写 call 方法。
+
+- 不能直接替换 runnable,因为 Thread 类的构造方法根本没有 Callable。
+
+## 6.2 Future 接口 
+
+当 call（）方法完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程返回的结果。为此，可以使用 Future 对象。
+
+将 Future 视为保存结果的对象–它可能暂时不保存结果，但将来会保存（一旦Callable 返回）。Future 基本上是主线程可以跟踪进度以及其他线程的结果的一种方式。要实现此接口，必须重写 5 种方法，这里列出了重要的方法,如下:
+
+- **public boolean cancel（boolean mayInterrupt）：**用于停止任务。
+
+==如果尚未启动，它将停止任务。如果已启动，则仅在 mayInterrupt 为 true时才会中断任务。==
+
+- **public Object get（）throws InterruptedException，ExecutionException：**用于获取任务的结果。
+
+==如果任务完成，它将立即返回结果，否则将等待任务完成，然后返回结果。==
+
+- **public boolean isDone（）：**如果任务完成，则返回 true，否则返回 false可以看到 Callable 和 Future 做两件事-Callable 与 Runnable 类似，因为它封装了要在另一个线程上运行的任务，而 Future 用于存储从另一个线程获得的结果。实际上，future 也可以与 Runnable 一起使用。
+
+要创建线程，需要 Runnable。为了获得结果，需要 future。
+
+## 6.3 FutureTask 
+
+Java 库具有具体的 FutureTask 类型，该类型实现 Runnable 和 Future，并方便地将两种功能组合在一起。 可以通过为其构造函数提供 Callable 来创建FutureTask。然后，将 FutureTask 对象提供给 Thread 的构造函数以创建 Thread 对象。因此，间接地使用 Callable 创建线程。
+
+**核心原理:(重点)**
+
+在主线程中需要执行比较耗时的操作时，但又不想阻塞主线程时，可以把这些作业交给 Future 对象在后台完成
+
+- 当主线程将来需要时，就可以通过 Future 对象获得后台作业的计算结果或者执行状态
+
+- 一般 FutureTask 多用于耗时的计算，主线程可以在完成自己的任务后，再去获取结果。
+
+- 仅在计算完成时才能检索结果；如果计算尚未完成，则阻塞 get 方法
+
+- 一旦计算完成，就不能再重新开始或取消计算
+
+- get 方法而获取结果只有在计算完成时获取，否则会一直阻塞直到任务转入完成状态，然后会返回结果或者抛出异常
+
+- get 只计算一次,因此 get 方法放到最后
+
+```java
+class Thread1 implements Runnable {
+    @Override
+    public void run() {
+
+    }
+}
+
+// 实现Callable接口
+class Thread2 implements Callable {
+    @Override
+    public Integer call() throws Exception {
+        return 200;
+    }
+}
+
+
+public class Demo1 {
+    public static void main(String[] args) {
+        // Runnable 接口线程
+        new Thread(new Thread1(), "AA").start();
+
+        // Callable 接口线程 报错
+        // new Thread(new Thread2(), "BB").start();
+
+        // FutureTask
+        FutureTask<Integer> futureTask1 = new FutureTask<>(new Thread2());
+
+        // lambda
+        FutureTask<Integer> futureTask2 = new FutureTask<>(() -> 1024);
+    }
+}
+```
+
+## 6.4 使用 Callable 和 Future 
+
+**改写上面的main方法**
+
+```java
+// 实现Callable接口
+class Thread2 implements Callable {
+    @Override
+    public Integer call() throws Exception {
+        for (int i = 0; i < 5; i++) {
+            System.out.println(Thread.currentThread().getName() + " is sleeping :: idx is :: " + i);
+            Thread.sleep(1000);
+        }
+        return 200;
+    }
+}
+
+public class Demo1 {
+    public static void main(String[] args) throws InterruptedException {
+
+        // FutureTask
+        FutureTask<Integer> futureTask1 = new FutureTask<>(new Thread2());
+
+        // lambda
+        FutureTask<Integer> futureTask2 = new FutureTask<>(() -> {
+            while (!futureTask1.isDone()){
+                System.out.println(Thread.currentThread().getName() + " is waiting...");
+                Thread.sleep(500);
+            }
+            System.out.println(Thread.currentThread().getName() + " get futureTask1 :: " + futureTask1.get());
+            return 1024;
+        });
+
+        new Thread(futureTask1, "AA").start();
+        Thread.sleep(300);
+        new Thread(futureTask2, "BB").start();
+    }
+}
+```
+
+**这里通过AA BB 线程之间的主线程睡眠保证 AA 线程先创建， 然后 AA 线程睡眠 5 秒才会返回值，而 BB 线程每 500ms 就会尝试通过 futureTask1的get方法获取线程1的 futureTask1 获取返回值，但因为AA线程的run方法没有执行完而阻塞。**
+
+```sh
+AA is sleeping :: idx is :: 0
+BB is waiting...
+BB is waiting...
+AA is sleeping :: idx is :: 1
+BB is waiting...
+BB is waiting...
+AA is sleeping :: idx is :: 2
+BB is waiting...
+BB is waiting...
+AA is sleeping :: idx is :: 3
+BB is waiting...
+BB is waiting...
+AA is sleeping :: idx is :: 4
+BB is waiting...
+BB is waiting...
+BB get futureTask1 :: 200
+```
+
+## 6.5 小结(重点) 
+
+- 在主线程中需要执行比较耗时的操作时，但又不想阻塞主线程时，可以把这些作业交给 Future 对象在后台完成, 当主线程将来需要时，就可以通过 Future 对象获得后台作业的计算结果或者执行状态。
+
+- 一般 FutureTask 多用于耗时的计算，主线程可以在完成自己的任务后，再去获取结果。
+
+- 仅在计算完成时才能检索结果；如果计算尚未完成，则阻塞 get 方法。一旦计算完成，就不能再重新开始或取消计算。get 方法而获取结果只有在计算完成时获取，否则会一直阻塞直到任务转入完成状态，然后会返回结果或者抛出异常。
+
+- 只计算一次。
+
+# 7 JUC 三大辅助类
+
+JUC 中提供了三种常用的辅助类，通过这些辅助类可以很好的解决线程数量过多时 Lock 锁的频繁操作。这三种辅助类为：
+
+- **CountDownLatch: 减少计数**
+
+- **CyclicBarrier: 循环栅栏**
+- **Semaphore: 信号灯**
+
+下面我们分别进行详细的介绍和学习
+
+## 7.1 减少计数 CountDownLatch
+
+CountDownLatch 类可以设置一个计数器，然后通过 countDown 方法来进行减 1 的操作，使用 await 方法等待计数器不大于 0，然后继续执行 await 方法之后的语句。
+
+- CountDownLatch 主要有两个方法，当一个或多个线程调用 await 方法时，这些线程会阻塞
+
+- 其它线程调用 countDown 方法会将计数器减 1(调用 countDown 方法的线程不会阻塞)
+
+- 当计数器的值变为 0 时，因 await 方法阻塞的线程会被唤醒，继续执行
+
+**场景: 6 个用户线程陆续离开后主线程关闭。**
+
+```java
+public class CountDownDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        CountDownLatch countDownLatch = new CountDownLatch(6);
+        System.out.println("主线程要关闭 关闭前请其他线程陆续退出");
+        for (int i = 1; i <= 6; i++) {
+            new Thread(()->{
+                System.out.println(Thread.currentThread().getName() + " :: is exiting");
+                countDownLatch.countDown();
+            }, "线程" + String.valueOf(i)).start();
+        }
+
+        countDownLatch.await();
+        System.out.println(Thread.currentThread().getName() + " is finished");
+    }
+}
+```
+
+## 7.2 循环栅栏 CyclicBarrier
+
+CyclicBarrier 看英文单词可以看出大概就是循环阻塞的意思，在使用中CyclicBarrier 的构造方法第一个参数是目标障碍数，每次执行 CyclicBarrier 一次障碍数会加一，如果达到了目标障碍数，才会执行 cyclicBarrier.await()之后的语句。可以将 CyclicBarrier 理解为加 1 操作
+
+**跟cyclicbarrier await线程数相关 只要await达到的线程数刚好符合 就唤醒所有线程并执行runnable方法**
+
+**场景: 集齐 7 颗龙珠就可以召唤神龙**
+
+```java
+public class CyclicBarrierDemo {
+    
+    private static int NUM = 7;
+    
+    public static void main(String[] args) {
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(NUM, ()->{
+            System.out.println("七颗龙珠被收集到了 可以召唤神龙!");
+        });
+
+        for (int i = 1; i <= 7; i++) {
+            new Thread(()-> {
+                try {
+                    System.out.println(Thread.currentThread().getName() + " :: 星龙珠被收集到了!");
+                    cyclicBarrier.await();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }, String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+## 7.3 信号灯 Semaphore
+
+`Semaphore` 的构造方法中传入的第一个参数是最大信号量（可以看成最大线程池），每个信号量初始化为一个最多只能分发一个许可证。使用 `acquire` 方法获得许可证，`release` 方法释放许可
+
+**场景: 抢车位, 6 部汽车 3 个停车位**
+
+```java
+public class SemaphoreDemo {
+
+    public static void main(String[] args) {
+        Semaphore semaphore = new Semaphore(3);
+
+        for (int i = 1; i <= 6; i++) {
+            new Thread(()-> {
+                try {
+                    semaphore.acquire();
+                    System.out.println(Thread.currentThread().getName() + "抢到了车位....");
+                    TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    System.out.println(Thread.currentThread().getName() + "离开了车位....");
+                    semaphore.release();
+                }
+            }, "线程 :: " + String.valueOf(i)).start();
+        }
+    }
+}
+```
+
+# 8 读写锁
+
+## 8.1 读写锁介绍
+
+现实中有这样一种场景：对共享资源有读和写的操作，且写操作没有读操作那么频繁。在没有写操作的时候，多个线程同时读一个资源没有任何问题，所以应该允许多个线程同时读取共享资源；但是如果一个线程想去写这些共享资源，就不应该允许其他线程对该资源进行读和写的操作了。
+
+针对这种场景，**JAVA 的并发包提供了读写锁 ReentrantReadWriteLock，它表示两个锁，一个是读操作相关的锁，称为共享锁；一个是写相关的锁，称为排他锁**
+
+1. **线程进入读锁的前提条件：**
+
+- 没有其他线程的写锁
+
+- 没有写请求, 或者==有写请求，但调用线程和持有锁的线程是同一个(可重入锁)。==
+
+2. **线程进入写锁的前提条件：**
+
+- 没有其他线程的读锁
+
+- 没有其他线程的写锁
+
+**而读写锁有以下三个重要的特性：**
+
+（1）公平选择性：支持非公平（默认）和公平的锁获取方式，吞吐量还是非公平优于公平。
+
+（2）重进入：读锁和写锁都支持线程重进入。
+
+（3）锁降级：遵循获取写锁、获取读锁再释放写锁的次序，写锁能够降级成为读锁。
+
+
+
+
+
+
+
+## 8.2 ReentrantReadWriteLock 
+
+ReentrantReadWriteLock 类的整体结构
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+可以看到，ReentrantReadWriteLock 实现了 ReadWriteLock 接口，ReadWriteLock 接口定义了获取读锁和写锁的规范，具体需要实现类去实现；同时其还实现了 Serializable 接口，表示可以进行序列化，在源代码中可以看到 ReentrantReadWriteLock 实现了自己的序列化逻辑。
+
+## 8.3 入门案例 
+
+**场景: 使用 ReentrantReadWriteLock 对一个 hashmap 进行读和写操作**
+
+### 8.3.1 实现案例
+
+
+
+
+
+## 8.4 小结(重要) 
+
+- 在线程持有读锁的情况下，该线程不能取得写锁(因为获取写锁的时候，如果发现当前的读锁被占用，就马上获取失败，不管读锁是不是被当前线程持有)。
+
+- 在线程持有写锁的情况下，该线程可以继续获取读锁（获取读锁时如果发现写锁被占用，只有写锁没有被当前线程占用的情况才会获取失败）。
+
+**原因**: 当线程获取读锁的时候，可能有其他线程同时也在持有读锁，因此不能把获取读锁的线程“升级”为写锁；而对于获得写锁的线程，它一定独占了读写锁，因此可以继续让它获取读锁，当它同时获取了写锁和读锁后，还可以先释放写锁继续持有读锁，这样一个写锁就“降级”为了读锁。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
