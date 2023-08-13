@@ -6,6 +6,8 @@
 
 在 Java 中，线程部分是一个重点，本篇文章说的 JUC 也是关于线程的。JUC 就是 java.util .concurrent 工具包的简称。这是一个处理线程的工具包，JDK 1.5 开始出现的。
 
+
+
 ## 1.2 进程与线程 
 
 - **程序（program）**：为完成特定任务，用某种语言编写的`一组指令的集合`。**即指`一段静态的代码`，静态对象。**
@@ -22,6 +24,8 @@
 **不同的进程之间是不共享内存的。**
 
 **进程之间的数据交换和通信的成本很高。**
+
+
 
 ## 1.3 线程的状态 
 
@@ -48,6 +52,8 @@ Thread.State
 
 说明：当从WAITING或TIMED_WAITING恢复到Runnable状态时，如果发现当前线程没有得到监视器锁，那么会立刻转入BLOCKED状态。
 
+
+
 ### 1.3.2 wait/sleep 的区别 
 
 （1）sleep 是 Thread 的静态方法，wait 是 Object 的方法，任何对象实例都能调用。
@@ -55,6 +61,8 @@ Thread.State
 （2）sleep 不会释放锁，它也不需要占用锁。wait 会释放锁，但调用它的前提是当前线程占有锁(即代码要在 synchronized 中)。
 
 （3）它们都可以被 interrupted 方法中断。
+
+
 
 ## 1.4 并发与并行 
 
@@ -78,11 +86,15 @@ Thread.State
 
 • 可以多进程/多线程的方式并行执行这些小任务。也可以单进程/单线程执行这些小任务，这时很可能要配合多路复用才能达到较高的效率
 
+
+
 ## 1.5 管程 
 
 管程(monitor)是保证了同一时刻只有一个进程在管程内活动,即管程内定义的操作在同一时刻只被一个进程调用(由编译器实现)
 
 但是这样并不能保证进程以设计的顺序执行 JVM 中同步是基于进入和退出管程(monitor)对象实现的，每个对象都会有一个管程(monitor)对象，管程(monitor)会随着 java 对象一同创建和销毁执行线程首先要持有管程对象，然后才能执行方法，当方法完成之后会释放管程，方法在执行时候会持有管程，其他线程无法再获取同一个管程
+
+
 
 ## 1.6 用户线程和守护线程 
 
@@ -111,6 +123,8 @@ public class ThreadTest {
 }
 ```
 
+
+
 # 2 Lock 接口 
 
 ## 2.1 Synchronized 
@@ -128,6 +142,8 @@ synchronized 是 Java 中的关键字，是一种同步锁。它修饰的对象�
 3. 修饰一个静态的方法，其作用的范围是整个静态方法，作用的对象是这个类的所有对象；
 
 4. 修饰一个类，其作用的范围是 synchronized 后面括号括起来的部分，作用主的对象是这个类的所有对象。
+
+
 
 ### 2.1.2 售票案例
 
@@ -200,6 +216,8 @@ public class TicketSale {
 
 **因此就需要有一种机制可以不让等待的线程一直无期限地等待下去（比如只等待一定的时间或者能够响应中断），通过 Lock 就可以办到。**
 
+
+
 ## 2.2 什么是 Lock
 
 Lock 锁实现提供了比使用同步方法和语句可以获得的更广泛的锁操作。它们允许更灵活的结构，可能具有非常不同的属性，并且可能支持多个关联的条件对象。Lock 提供了比 synchronized 更多的功能。
@@ -209,6 +227,8 @@ Lock 锁实现提供了比使用同步方法和语句可以获得的更广泛的
 - Lock 不是 Java 语言内置的，synchronized 是 Java 语言的关键字，因此是内置特性。Lock 是一个类，通过这个类可以实现同步访问；
 
 - Lock 和 synchronized 有一点非常大的不同，**采用 synchronized 不需要用户去手动释放锁**，当 synchronized 方法或者 synchronized 代码块执行完之后，系统会自动让线程释放对锁的占用；**而 Lock 则必须要用户去手动释放锁，如果没有主动释放锁，就有可能导致出现死锁现象**
+
+
 
 ### 2.2.1 Lock 接口
 
@@ -222,6 +242,8 @@ public interface Lock {
     Condition newCondition();
 }
 ```
+
+
 
 ### 2.2.2 lock
 
@@ -245,6 +267,8 @@ lock()方法是平常使用得最多的一个方法，就是用来获取锁。�
 }
 ```
 
+
+
 ### 2.2.3 newCondition
 
 关键字 synchronized 与 wait()/notify()这两个方法一起使用可以实现等待/通知模式， Lock 锁的 newContition()方法返回 Condition 对象，Condition 类也可以实现等待/通知模式。
@@ -256,6 +280,8 @@ lock()方法是平常使用得最多的一个方法，就是用来获取锁。�
 - signal()用于唤醒一个等待的线程。
 
 **注意**：在调用 Condition 的 await()/signal()方法前，也需要线程持有相关的 Lock 锁，调用 await()后线程会释放这个锁，在 singal()调用后会从当前Condition 对象的等待队列中，唤醒 一个线程，唤醒的线程尝试获得锁， 一旦获得锁成功就继续执行。
+
+
 
 ## 2.3 ReentrantLock
 
@@ -337,6 +363,8 @@ public class LTicketSale {
 }
 ```
 
+
+
 ## 2.4 小结(重点)
 
 **<font color='000bb'>Lock 和 synchronized 有以下几点不同：</font>**
@@ -350,6 +378,8 @@ public class LTicketSale {
 4. **通过 Lock 可以知道有没有成功获取锁，而 synchronized 却无法办到。**
 5. **Lock 可以提高多个线程进行读操作的效率。在性能上来说，如果竞争资源不激烈，两者的性能是差不多的，而当竞争资源非常激烈时（即有大量线程同时竞争），此时 Lock 的性能要远远优于synchronized。**
 
+
+
 # 3 线程间通信 
 
 线程间通信的模型有两种：共享内存和消息传递，以下方式都是基本这两种模型来实现的。我们来基本一道面试常见的题目来分析
@@ -359,6 +389,8 @@ public class LTicketSale {
 ![5.png](./1 JUC基础篇.assets/5.png)
 
 **<font color='bb000'>同时这里要补充一点，我们在进入线程通信的等待唤醒的条件判断，应该使用 `while`，这样能保证不会出现虚假唤醒，因为java的唤醒机制是，从哪里睡眠，就从哪里唤醒，如果使用`if`导致出现并不应该唤醒的情况下，线程被唤醒，错误的执行了不该执行的方法。</font>**
+
+
 
 ## 3.1 synchronized 方案
 
@@ -437,6 +469,8 @@ public class ThreadDemo1 {
     }
 }
 ```
+
+
 
 ## 3.2 Lock 方案 
 
@@ -530,6 +564,8 @@ public class ThreadDemo2 {
     }
 }
 ```
+
+
 
 ## 3.3 线程间定制化通信 
 
@@ -639,6 +675,8 @@ public class ThreadDemo3 {
 **对于静态同步方法，锁是当前类的class对象。**
 **对于同步方法块，锁是synchonized括号里配置的对象**
 
+
+
 # 4 集合的线程安全 
 
 ## 4.1 集合操作 Demo 
@@ -687,6 +725,8 @@ return true;
 
 **那么我们如何去解决 List 类型的线程安全问题?**
 
+
+
 ## 4.2 Vector 
 
 Vector 是**矢量队列**，它是 JDK1.0 版本添加的类。继承于 AbstractList，实现了 List, RandomAccess, Cloneable 这些接口。 Vector 继承了 AbstractList，实现了 List；所以，**它是一个队列，支持相关的添加、删除、修改、遍历等功能**。 Vector 实现了 RandomAccess 接口，即**提供了随机访问功能**。
@@ -714,6 +754,8 @@ public class ThreadDemo4 {
     }
 }
 ```
+
+
 
 ## 4.3 Collections 
 
@@ -747,6 +789,8 @@ public static <T> List<T> synchronizedList(List<T> list) {
         new SynchronizedRandomAccessList<>(list) : new SynchronizedList<>(list));
 }
 ```
+
+
 
 ## 4.4 CopyOnWriteArrayList(重点) 
 
@@ -793,6 +837,8 @@ public static <T> List<T> synchronizedList(List<T> list) {
 
 - 通过互斥锁来保护数据。在“添加/修改/删除”数据时，会先“获取互斥锁”，再修改完毕之后，先将数据更新到“volatile 数组”中，然后再“释放互斥锁”，就达到了保护数据的目的。
 
+
+
 ## 4.5 小结(重点) 
 
 **1.线程安全与线程不安全集合**
@@ -810,6 +856,8 @@ HashMap -----HashTable
 **3.java.util.concurrent 并发包下**
 
 CopyOnWriteArrayList CopyOnWriteArraySet ConcurrentHashMap 类型,通过动态数组与线程安全个方面保证线程安全
+
+
 
 # 5 多线程锁 
 
@@ -946,6 +994,8 @@ class Phone {
 
 但是一旦一个静态同步方法获取锁后，其他的静态同步方法都必须等待该方法释放锁后才能获取锁，而不管是同一个实例对象的静态同步方法之间，还是不同的实例对象的静态同步方法之间，只要它们同一个类的实例对象，就会产生竞争关系！
 
+
+
 ## 5.2 公平锁和非公平锁
 
 ![6.png](./1 JUC基础篇.assets/6.png)
@@ -959,6 +1009,8 @@ class Phone {
 **公平锁 ： 均衡调用      效率低**
 
 **非公平锁的话就是抢的，就不管你来的早还是晚，同时竞争，公平锁的话就是有一个队列，咱们依次按队列排。**
+
+
 
 ## 5.3. 可重入锁
 
@@ -1009,6 +1061,8 @@ AA :: TestA
 AA :: TestB
 BB :: TestB
 ```
+
+
 
 ## 5.4. 死锁
 
@@ -1099,6 +1153,8 @@ jstack 23604
 
 ![8.png](./1 JUC基础篇.assets/8.png)
 
+
+
 # 6 Callable & Future 接口
 
 ## 6.1 Callable 接口
@@ -1117,6 +1173,8 @@ jstack 23604
 
 - 不能直接替换 runnable,因为 Thread 类的构造方法根本没有 Callable。
 
+
+
 ## 6.2 Future 接口 
 
 当 call（）方法完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程返回的结果。为此，可以使用 Future 对象。
@@ -1134,6 +1192,8 @@ jstack 23604
 - **public boolean isDone（）：**如果任务完成，则返回 true，否则返回 false可以看到 Callable 和 Future 做两件事-Callable 与 Runnable 类似，因为它封装了要在另一个线程上运行的任务，而 Future 用于存储从另一个线程获得的结果。实际上，future 也可以与 Runnable 一起使用。
 
 要创建线程，需要 Runnable。为了获得结果，需要 future。
+
+
 
 ## 6.3 FutureTask 
 
@@ -1188,6 +1248,8 @@ public class Demo1 {
     }
 }
 ```
+
+
 
 ## 6.4 使用 Callable 和 Future 
 
@@ -1250,6 +1312,8 @@ BB is waiting...
 BB get futureTask1 :: 200
 ```
 
+
+
 ## 6.5 小结(重点) 
 
 - 在主线程中需要执行比较耗时的操作时，但又不想阻塞主线程时，可以把这些作业交给 Future 对象在后台完成, 当主线程将来需要时，就可以通过 Future 对象获得后台作业的计算结果或者执行状态。
@@ -1259,6 +1323,8 @@ BB get futureTask1 :: 200
 - 仅在计算完成时才能检索结果；如果计算尚未完成，则阻塞 get 方法。一旦计算完成，就不能再重新开始或取消计算。get 方法而获取结果只有在计算完成时获取，否则会一直阻塞直到任务转入完成状态，然后会返回结果或者抛出异常。
 
 - 只计算一次。
+
+
 
 # 7 JUC 三大辅助类
 
@@ -1270,6 +1336,8 @@ JUC 中提供了三种常用的辅助类，通过这些辅助类可以很好的�
 - **Semaphore: 信号灯**
 
 下面我们分别进行详细的介绍和学习
+
+
 
 ## 7.1 减少计数 CountDownLatch
 
@@ -1303,6 +1371,8 @@ public class CountDownDemo {
 }
 ```
 
+
+
 ## 7.2 循环栅栏 CyclicBarrier
 
 CyclicBarrier 看英文单词可以看出大概就是循环阻塞的意思，在使用中CyclicBarrier 的构造方法第一个参数是目标障碍数，每次执行 CyclicBarrier 一次障碍数会加一，如果达到了目标障碍数，才会执行 cyclicBarrier.await()之后的语句。可以将 CyclicBarrier 理解为加 1 操作
@@ -1334,6 +1404,8 @@ public class CyclicBarrierDemo {
     }
 }
 ```
+
+
 
 ## 7.3 信号灯 Semaphore
 
@@ -1369,6 +1441,8 @@ public class SemaphoreDemo {
 
 <img src="./1 JUC基础篇.assets/9.png" alt="9.png" style="zoom:67%;" />
 
+
+
 ## 8.1 读写锁介绍
 
 现实中有这样一种场景：对共享资源有读和写的操作，且写操作没有读操作那么频繁。在没有写操作的时候，多个线程同时读一个资源没有任何问题，所以应该允许多个线程同时读取共享资源；但是如果一个线程想去写这些共享资源，就不应该允许其他线程对该资源进行读和写的操作了。
@@ -1394,6 +1468,8 @@ public class SemaphoreDemo {
 （2）重进入：读锁和写锁都支持线程重进入。
 
 （3）锁降级：遵循获取写锁、获取读锁再释放写锁的次序，写锁能够降级成为读锁。
+
+
 
 ## 8.2 ReentrantReadWriteLock 
 
@@ -1434,6 +1510,8 @@ java.io.Serializable {
 ```
 
 可以看到，ReentrantReadWriteLock 实现了 ReadWriteLock 接口，ReadWriteLock 接口定义了获取读锁和写锁的规范，具体需要实现类去实现；同时其还实现了 Serializable 接口，表示可以进行序列化，在源代码中可以看到 ReentrantReadWriteLock 实现了自己的序列化逻辑。
+
+
 
 ## 8.3 入门案例 
 
@@ -1589,6 +1667,8 @@ Thread::3 get value : num::3
 Thread::2 get value : num::2
 ```
 
+
+
 ## 8.4 小结(重要) 
 
 - 在线程持有读锁的情况下，该线程不能取得写锁(因为获取写锁的时候，如果发现当前的读锁被占用，就马上获取失败，不管读锁是不是被当前线程持有)。
@@ -1596,6 +1676,8 @@ Thread::2 get value : num::2
 - 在线程持有写锁的情况下，该线程可以继续获取读锁（获取读锁时如果发现写锁被占用，只有写锁没有被当前线程占用的情况才会获取失败）。
 
 **原因**: 当线程获取读锁的时候，可能有其他线程同时也在持有读锁，因此不能把获取读锁的线程“升级”为写锁；而对于获得写锁的线程，它一定独占了读写锁，因此可以继续让它获取读锁，当它同时获取了写锁和读锁后，还可以先释放写锁继续持有读锁，这样一个写锁就“降级”为了读锁。
+
+
 
 # 9 阻塞队列 
 
@@ -1635,6 +1717,8 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 • 当队列中填满数据的情况下，生产者端的所有线程都会被自动阻塞（挂起），直到队列中有空的位置，线程被自动唤醒
 
+
+
 ## 9.2 BlockingQueue 核心方法 
 
 ![11.png](./1 JUC基础篇.assets/11.png)
@@ -1659,6 +1743,8 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 - drainTo(): 一次性从 BlockingQueue 获取所有可用的数据对象（还可以指定获取数据的个数），通过该方法，可以提升获取数据效率；不需要多次分批加锁或释放锁。
 
+
+
 ## 9.3 入门案例 
 
 
@@ -1677,7 +1763,9 @@ ArrayBlockingQueue 在生产者放入数据和消费者获取数据，都是共�
 
 ==**一句话总结: 由数组结构组成的有界阻塞队列。**==
 
-**9.4.2 LinkedBlockingQueue(常用)**
+
+
+### 9.4.2 LinkedBlockingQueue(常用)
 
 基于链表的阻塞队列，同 ArrayListBlockingQueue 类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓冲区达到最大值缓存容量时（LinkedBlockingQueue 可以通过构造函数指定该值），才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒，反之对于消费者这端的处理也基于同样的原理。
 
@@ -1689,11 +1777,15 @@ ArrayBlockingQueue 在生产者放入数据和消费者获取数据，都是共�
 
 ==**一句话总结: 由链表结构组成的有界（但大小默认值为integer.MAX_VALUE）阻塞队列。**==
 
+
+
 ### 9.4.3 DelayQueue
 
 DelayQueue 中的元素只有当其指定的延迟时间到了，才能够从队列中获取到该元素。DelayQueue 是一个没有大小限制的队列，因此往队列中插入数据的操作（生产者）永远不会被阻塞，而只有获取数据的操作（消费者）才会被阻塞。
 
 ==**一句话总结: 使用优先级队列实现的延迟无界阻塞队列。**==
+
+
 
 ### 9.4.4 PriorityBlockingQueue
 
@@ -1704,6 +1796,8 @@ DelayQueue 中的元素只有当其指定的延迟时间到了，才能够从队
 在实现 PriorityBlockingQueue 时，内部控制线程同步的锁采用的是**公平锁**。
 
 ==**一句话总结: 支持优先级排序的无界阻塞队列。**==
+
+
 
 ### 9.4.5 SynchronousQueue
 
@@ -1719,6 +1813,8 @@ DelayQueue 中的元素只有当其指定的延迟时间到了，才能够从队
 
 ==**一句话总结: 不存储元素的阻塞队列，也即单个元素的队列。**==
 
+
+
 ### 9.4.6 LinkedTransferQueue
 
 LinkedTransferQueue 是一个由链表结构组成的无界阻塞 TransferQueue 队列。相对于其他阻塞队列，LinkedTransferQueue 多了 tryTransfer 和transfer 方法。
@@ -1731,6 +1827,8 @@ LinkedTransferQueue 采用一种预占模式。意思就是消费者线程取元
 
 ==**一句话总结: 由链表组成的无界阻塞队列。**==
 
+
+
 ### 9.4.7 LinkedBlockingDeque
 
 LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可以从队列的两端插入和移除元素。
@@ -1742,6 +1840,8 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 - 读取元素时: 如果当前队列为空会阻塞住直到队列不为空然后返回元素，同样可以通过设置超时参数
 
 ==**一句话总结: 由链表组成的双向阻塞队列**==
+
+
 
 ## 9.5 小结
 

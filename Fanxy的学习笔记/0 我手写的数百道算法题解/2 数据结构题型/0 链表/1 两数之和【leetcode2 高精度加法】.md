@@ -1,4 +1,4 @@
-# <font color='bb000'>两数相加【链表】</font>
+# <font color='bb000'>两数相加【链表】leetcode 2</font>
 ## **`下面的链接是——————我做的所有的题解`**
 
 # [包括基础提高以及一些零散刷的各种各样的题](https://www.acwing.com/blog/content/33005/) 
@@ -14,7 +14,7 @@
 
 **示例 1：**
 
- ![1](./1 两数之和【高精度加法】.assets/1.png)
+ ![1](./1 两数之和【leetcode2 高精度加法】.assets/1.png)
 
 
 

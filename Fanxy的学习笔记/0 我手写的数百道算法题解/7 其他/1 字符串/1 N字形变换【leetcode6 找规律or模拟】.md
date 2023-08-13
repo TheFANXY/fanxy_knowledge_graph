@@ -1,4 +1,4 @@
-# <font color='bb000'>2 N字形变换【leetcode6 找规律or模拟】</font>
+# <font color='bb000'>N字形变换【leetcode6 找规律or模拟】</font>
 
 
 ## **`下面的链接是——————我做的所有的题解`**

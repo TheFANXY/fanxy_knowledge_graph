@@ -1,4 +1,4 @@
-# <font color="bb000">跳跃游戏 leetcode 55</font>
+# <font color="bb000">跳跃游戏 leetcode 55 贪心</font>
 
 ## **`下面的链接是——————我做的所有的题解`**
 

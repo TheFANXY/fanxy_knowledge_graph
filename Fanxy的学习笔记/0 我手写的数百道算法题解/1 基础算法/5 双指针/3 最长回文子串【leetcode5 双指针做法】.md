@@ -1,4 +1,4 @@
-# <font color='bb000'>3 最长回文子串【双指针】 leetcode5</font>
+# <font color='bb000'>最长回文子串【双指针】 leetcode5</font>
 
 
 ## **`下面的链接是——————我做的所有的题解`**
