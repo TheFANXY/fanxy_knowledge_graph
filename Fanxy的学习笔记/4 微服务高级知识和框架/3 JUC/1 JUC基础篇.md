@@ -1747,11 +1747,9 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 ## 9.3 入门案例 
 
-
-
-
-
-
+```java
+基于上面四个方法自行书写案例测试即可
+```
 
 ## 9.4 常见的 BlockingQueue 
 
@@ -1769,9 +1767,7 @@ ArrayBlockingQueue 在生产者放入数据和消费者获取数据，都是共�
 
 基于链表的阻塞队列，同 ArrayListBlockingQueue 类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓冲区达到最大值缓存容量时（LinkedBlockingQueue 可以通过构造函数指定该值），才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒，反之对于消费者这端的处理也基于同样的原理。
 
-而 LinkedBlockingQueue 之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列
-
-的并发性能。
+而 LinkedBlockingQueue 之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。
 
 **ArrayBlockingQueue 和 LinkedBlockingQueue 是两个最普通也是最常用阻塞队列，一般情况下，在处理多线程间的生产者消费者问题，使用这两个类足以。**
 
@@ -1850,6 +1846,662 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 **满足，被挂起的线程又会自动被唤起**
 
 **2. 为什么需要 BlockingQueue?** 在 concurrent 包发布以前，在多线程环境下，我们每个程序员都必须去自己控制这些细节，尤其还要兼顾效率和线程安全，而这会给我们的程序带来不小的复杂度。使用后我们不需要关心什么时候需要阻塞线程，什么时候需要唤醒线程，因为这一切 BlockingQueue 都给你一手包办了
+
+
+
+# 10 ThreadPool 线程池 
+
+## 10.1 线程池简介
+
+线程池（英语：thread pool）：一种线程使用模式。线程过多会带来调度开销，进而影响缓存局部性和整体性能。而线程池维护着多个线程，等待着监督管理者分配可并发执行的任务。这避免了在处理短时间任务时创建与销毁线程的代价。线程池不仅能够保证内核的充分利用，还能防止过分调度。
+
+例子： 10 年前单核 CPU 电脑，假的多线程，像马戏团小丑玩多个球，CPU 需要来回切换。 现在是多核电脑，多个线程各自跑在独立的 CPU 上，不用切换效率高。
+
+**线程池的优势：** 线程池做的工作只要是控制运行的线程数量，处理过程中将任务放入队列，然后在线程创建后启动这些任务，如果线程数量超过了最大数量，超出数量的线程排队等候，等其他线程执行完毕，再从队列中取出任务来执行。
+
+**它的主要特点为：**
+
+- 降低资源消耗: 通过重复利用已创建的线程降低线程创建和销毁造成的销耗。
+
+- 提高响应速度: 当任务到达时，任务可以不需要等待线程创建就能立即执行。
+
+- 提高线程的可管理性: 线程是稀缺资源，如果无限制的创建，不仅会销耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一的分配，调优和监控。
+
+- **Java** **中的线程池是通过** **Executor** **框架实现的，该框架中用到了** **Executor，Executors，ExecutorService，ThreadPoolExecutor** **这几个类**
+
+<img src="./1 JUC基础篇.assets/12.png" alt="12.png" style="zoom:67%;" />
+
+
+
+## 10.2 线程池参数说明
+
+本次介绍 5 种类型的线程池
+
+**<font color='bb000'>源码本质都是调用 `ThreadPollExecutor` 的构造方法去创建，阿里巴巴开发规范也建议使用这个方法创建而不是 `Executors`</font>**
+
+```java
+    public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) { 
+-----------------------------------------------------------------------------        
+    }
+```
+
+### 10.2.1 <font color='bb000'>常用参数(重点)</font>
+
+- **`int corePoolSize` 线程池的核心线程数**
+
+- **`int maximumPoolSize` 能容纳的最大线程数**
+
+- **`long keepAliveTime` 空闲线程存活时间**
+
+- **`TimeUnit unit` 存活的时间单位**
+
+- **`BlockingQueue <Runnable> workQueue` 存放提交但未执行任务的队列**
+
+- **`ThreadFactory threadFactory` 创建线程的工厂类**
+
+- **`RejectedExecutionHandler handler` 等待队列满后的拒绝策略**
+
+线程池中，有三个重要的参数，决定影响了拒绝策略：corePoolSize - 核心线程数，也即最小的线程数。workQueue - 阻塞队列 。
+
+**maximumPoolSize -最大线程数**
+
+当提交任务数大于 corePoolSize 的时候，会优先将任务放到 workQueue 阻塞队列中。当阻塞队列饱和后，会扩充线程池中线程数，直到达到maximumPoolSize 最大线程数配置。此时，再多余的任务，则会触发线程池
+
+的拒绝策略了。
+
+总结起来，也就是一句话
+
+**当提交的任务数大于（workQueue.size() +** **maximumPoolSize ），就会触发线程池的拒绝策略**。
+
+
+
+### 10.2.2 拒绝策略(重点)
+
+**CallerRunsPolicy**: 当触发拒绝策略，只要线程池没有关闭的话，则使用调用线程直接运行任务。一般并发比较小，性能要求不高，不允许失败。但是，由于调用者自己运行任务，如果任务提交速度过快，可能导致程序阻塞，性能效率上必然的损失较大
+
+**AbortPolicy**: 丢弃任务，并抛出拒绝执行 RejectedExecutionException 异常信息。线程池默认的拒绝策略。必须处理好抛出的异常，否则会打断当前的执行流程，影响后续的任务执行。
+
+**DiscardPolicy**: 直接丢弃，其他啥都没有
+
+**DiscardOldestPolicy**: 当触发拒绝策略，只要线程池没有关闭的话，丢弃阻塞队列 workQueue 中最老的一个任务，并将新任务加入
+
+
+
+## **10.3 **线程池的种类与创建
+
+讲下简单案例：Single效率太低pass，用cache大量线程同时生成，池子处理速度赶不上线程生成速度导致池子越来越大pass，最后用的fixed（结合了cpu核心+单次处理数据限制）
+
+### 10.3.1 newCachedThreadPool(常用)【可扩容 根据需求创建】
+
+**作用**：创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程.
+
+**特点**: 
+
+- 线程池中数量没有固定，可达到最大值（Interger. MAX_VALUE）
+
+- 线程池中的线程可进行缓存重复利用和回收（回收默认时间为 1 分钟）
+
+- 当线程池中，没有可用线程，会重新创建一个线程
+
+**创建方式：**
+
+```java
+public class ThreadPoolDemo1 {
+    public static void main(String[] args) {
+
+        // 创建 可自动扩容线程池
+        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
+        // 模拟十个请求完成任务
+        try {
+            for (int i = 1; i <= 10; i++) {
+                cachedThreadPool.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " :: is working...");
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println(Thread.currentThread().getName() + " :: have finished working...");
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            cachedThreadPool.shutdown();
+        }
+    }
+}
+```
+
+**创建了10个线程完成这十个任务**
+
+```apl
+pool-2-thread-1 :: is working...
+pool-2-thread-4 :: is working...
+pool-2-thread-6 :: is working...
+pool-2-thread-5 :: is working...
+pool-2-thread-3 :: is working...
+pool-2-thread-7 :: is working...
+pool-2-thread-2 :: is working...
+pool-2-thread-8 :: is working...
+pool-2-thread-9 :: is working...
+pool-2-thread-10 :: is working...
+pool-2-thread-9 :: have finished working...
+pool-2-thread-3 :: have finished working...
+pool-2-thread-5 :: have finished working...
+pool-2-thread-2 :: have finished working...
+pool-2-thread-6 :: have finished working...
+pool-2-thread-7 :: have finished working...
+pool-2-thread-8 :: have finished working...
+pool-2-thread-1 :: have finished working...
+pool-2-thread-10 :: have finished working...
+pool-2-thread-4 :: have finished working...
+```
+
+**场景:** 适用于创建一个可无限扩大的线程池，服务器负载压力较轻，执行时间较短，任务多的场景
+
+
+
+### 10.3.2 newFixedThreadPool(常用)【一池N线程】
+
+**作用**：创建一个可重用固定线程数的线程池，以共享的无界队列方式来运行这些线程。在任意点，在大多数线程会处于处理任务的活动状态。如果在所有线程处于活动状态时提交附加任务，则在有可用线程之前，附加任务将在队列中等待。如果在关闭前的执行期间由于失败而导致任何线程终止，那么一个新线程将代替它执行后续的任务（如果需要）。在某个线程被显式地关闭之前，池中的线程将一直存在。
+
+**特征：**
+
+- 线程池中的线程处于一定的量，可以很好的控制线程的并发量
+
+- 线程可以重复被使用，在显示关闭之前，都将一直存在
+
+- 超出一定量的线程被提交时候需在队列中等待
+
+**创建方式**：
+
+```java
+public class ThreadPoolDemo1 {
+    public static void main(String[] args) {
+
+        // 创建 一池五线程的线程池
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(5);
+
+        // 模拟十个请求完成任务
+        try {
+            for (int i = 1; i <= 10; i++) {
+                fixedThreadPool.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " :: is working...");
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println(Thread.currentThread().getName() + " :: have finished working...");
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            fixedThreadPool.shutdown();
+        }
+    }
+}
+```
+
+```apl
+pool-1-thread-2 :: is working...
+pool-1-thread-5 :: is working...
+pool-1-thread-1 :: is working...
+pool-1-thread-3 :: is working...
+pool-1-thread-4 :: is working...
+pool-1-thread-4 :: have finished working...
+pool-1-thread-1 :: have finished working...
+pool-1-thread-3 :: have finished working...
+pool-1-thread-2 :: have finished working...
+pool-1-thread-5 :: have finished working...
+pool-1-thread-5 :: is working...
+pool-1-thread-2 :: is working...
+pool-1-thread-4 :: is working...
+pool-1-thread-1 :: is working...
+pool-1-thread-3 :: is working...
+pool-1-thread-3 :: have finished working...
+pool-1-thread-1 :: have finished working...
+pool-1-thread-4 :: have finished working...
+pool-1-thread-2 :: have finished working...
+pool-1-thread-5 :: have finished working...
+```
+
+
+
+**场景:** 适用于可以预测线程数量的业务中，或者服务器负载较重，对线程数有严格限制的场景
+
+
+
+### 10.3.3 newSingleThreadExecutor(常用)【一池单线程】
+
+**作用**：创建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。（注意，如果因为在关闭前的执行期间出现失败而终止了此单个线程，那么如果需要，一个新线程将代替它执行后续的任务）。可保证顺序地执行各个任务，并且在任意给定的时间不会有多个线程是活动的。**与其他等效的newFixedThreadPool 不同，可保证无需重新配置此方法所返回的执行程序即可使用其他的线程。**
+
+**特征：** 线程池中最多执行 1 个线程，之后提交的线程活动将会排在队列中以此执行
+
+**创建方式：**
+
+```java
+public class ThreadPoolDemo1 {
+    public static void main(String[] args) {
+
+        // 创建 单池单线程线程池
+        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
+        // 模拟十个请求完成任务
+        try {
+            for (int i = 1; i <= 10; i++) {
+                singleThreadExecutor.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " :: is working...");
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println(Thread.currentThread().getName() + " :: have finished working...");
+                });
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            singleThreadExecutor.shutdown();
+        }
+    }
+}
+```
+
+**场景:** 适用于需要保证顺序执行各个任务，并且在任意时间点，不会同时有多个线程的场景
+
+
+
+### 10.3.4 newScheduleThreadPool(了解)
+
+**作用:** 线程池支持定时以及周期性执行任务，创建一个 corePoolSize 为传入参数，最大线程数为整形的最大数的线程池
+
+**特征:**
+
+（1）线程池中具有指定数量的线程，即便是空线程也将保留 
+
+（2）可定时或者延迟执行线程活动
+
+**场景:** 适用于需要多个后台线程执行周期任务的场景
+
+
+
+### 10.3.5 newWorkStealingPool
+
+jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一个拥有多个任务队列的线程池，可以减少连接数，创建当前可用 cpu 核数的线程来并行执行任务
+
+**场景:** 适用于大耗时，可并行执行的场景
+
+## 10.4 线程池入门案例
+
+**场景: 火车站 3 个售票口, 10 个用户买票**
+
+## 10.5 线程池底层工作原理(重要)
+
+<img src="./1 JUC基础篇.assets/13.png" alt="13.png" style="zoom:67%;" />
+
+1. **在创建了线程池后，线程池中的线程数为零**
+
+2. **当调用 execute()方法添加一个请求任务时，线程池会做出如下判断：**
+
+   2.1 **如果正在运行的线程数量小于corePoolSize，那么马上创建线程运行这个任务；**
+
+   2.2 **如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列；** 
+
+   2.3 **如果这个时候队列满了且正在运行的线程数量还小于maximumPoolSize，那么还是要创建非核心线程立刻运行这个任务；**
+
+   2.4 **如果队列满了且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会启动饱和拒绝策略来执行。**
+
+3. **当一个线程完成任务时，它会从队列中取下一个任务来执行**
+4. **当一个线程无事可做超过一定的时间（keepAliveTime）时，线程会判断：**
+
+4.1. **如果当前运行的线程数大于 corePoolSize，那么这个线程就被停掉。**
+
+4.2. **所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。**
+
+![14.png](./1 JUC基础篇.assets/14.png)
+
+
+
+## 10.6 注意事项(重要)
+
+1. 项目中创建多线程时，使用常见的三种线程池创建方式，单一、可变、定长都有一定问题，原因是 FixedThreadPool 和 SingleThreadExecutor 底层都是用LinkedBlockingQueue 实现的，这个队列最大长度为 Integer.MAX_VALUE，容易导致 OOM。所以实际生产一般自己通过 ThreadPoolExecutor 的 7 个参数，自定义线程池
+
+2. 创建线程池推荐适用 ThreadPoolExecutor 及其 7 个参数手动创建
+
+- **`int corePoolSize` 线程池的核心线程数**
+
+- **`int maximumPoolSize` 能容纳的最大线程数**
+
+- **`long keepAliveTime` 空闲线程存活时间**
+
+- **`TimeUnit unit` 存活的时间单位**
+
+- **`BlockingQueue <Runnable> workQueue` 存放提交但未执行任务的队列**
+
+- **`ThreadFactory threadFactory` 创建线程的工厂类**
+
+- **`RejectedExecutionHandler handler` 等待队列满后的拒绝策略**
+
+3. 为什么不允许适用不允许 Executors.的方式手动创建线程池,如下图
+
+![15.png](./1 JUC基础篇.assets/15.png)
+
+## 10.7 自定义线程池
+
+```java
+    public static void main(String[] args) {
+        ThreadPoolExecutor myThreadPool = new ThreadPoolExecutor(
+                2,
+                5,
+                2L,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(3),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy()
+                );
+    }
+```
+
+# 11 Fork/Join 
+
+## 11.1 Fork/Join 框架简介
+
+Fork/Join 它可以将一个大的任务拆分成多个子任务进行并行处理，最后将子任务结果合并成最后的计算结果，并进行输出。Fork/Join 框架要完成两件事情：
+
+**Fork：把一个复杂任务进行分拆，大事化小**
+
+**Join：把分拆任务的结果进行合并**
+
+<img src="./1 JUC基础篇.assets/16.png" alt="16.png" style="zoom:67%;" />
+
+1. **任务分割**：首先 Fork/Join 框架需要把大的任务分割成足够小的子任务，如果子任务比较大的话还要对子任务进行继续分割
+
+2. **执行任务并合并结果**：分割的子任务分别放到双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都放在另外一个队列里，启动一个线程从队列里取数据，然后合并这些数据。在 Java 的 Fork/Join 框架中，使用两个类完成上述操作
+
+**ForkJoinTask**:我们要使用 Fork/Join 框架，首先需要创建一个 ForkJoin 任务。该类提供了在任务中执行 fork 和 join 的机制。通常情况下我们不需要直接集成 ForkJoinTask 类，只需要继承它的子类，Fork/Join 框架提供了两个子类：
+
+ a.RecursiveAction：用于没有返回结果的任务
+
+ b.RecursiveTask:用于有返回结果的任务
+
+- **ForkJoinPool**:ForkJoinTask 需要通过 ForkJoinPool 来执行
+
+- **RecursiveTask**: 继承后可以实现递归(自己调自己)调用的任务
+
+**Fork/Join 框架的实现原理**
+
+ForkJoinPool 由 ForkJoinTask 数组和 ForkJoinWorkerThread 数组组成，ForkJoinTask 数组负责将存放以及将程序提交给 ForkJoinPool，而ForkJoinWorkerThread 负责执行这些任务。
+
+## 11.2 Fork 方法
+
+<img src="./1 JUC基础篇.assets/17.png" alt="17.png" style="zoom:67%;" />
+
+<img src="./1 JUC基础篇.assets/18.png" alt="18.png" style="zoom:50%;" />
+
+**Fork 方法的实现原理：** 当我们调用 ForkJoinTask 的 fork 方法时，程序会把任务放在 ForkJoinWorkerThread 的 pushTask 的 **workQueue** 中，异步地执行这个任务，然后立即返回结果
+
+```java
+    public final ForkJoinTask<V> fork() {
+        Thread t;
+        if ((t = Thread.currentThread()) instanceof ForkJoinWorkerThread)
+            ((ForkJoinWorkerThread)t).workQueue.push(this);
+        else
+            ForkJoinPool.common.externalPush(this);
+        return this;
+    }
+```
+
+pushTask 方法把当前任务存放在 ForkJoinTask 数组队列里。然后再调用ForkJoinPool 的 signalWork()方法唤醒或创建一个工作线程来执行任务。代码如下：
+
+```java
+final void push(ForkJoinTask<?> task) {
+    ForkJoinTask<?>[] a; ForkJoinPool p;
+    int b = base, s = top, n;
+    if ((a = array) != null) { // ignore if queue removed
+        int m = a.length - 1; // fenced write for task visibility
+        U.putOrderedObject(a, ((m & s) << ASHIFT) + ABASE, task);
+        U.putOrderedInt(this, QTOP, s + 1);
+        if ((n = s - b) <= 1) {
+        if ((p = pool) != null)
+        	p.signalWork(p.workQueues, this);//执行
+    	}
+    else if (n >= m)  growArray();
+    }
+}
+```
+
+## 11.3 join 方法
+
+Join 方法的主要作用是阻塞当前线程并等待获取结果。让我们一起看看ForkJoinTask 的 join 方法的实现，代码如下：
+
+```java
+public final V join() {
+     int s;
+     if ((s = doJoin() & DONE_MASK) != NORMAL)
+     	reportException(s);
+     return getRawResult();
+ }
+```
+
+它首先调用 doJoin 方法，通过 doJoin()方法得到当前任务的状态来判断返回什么结果，任务状态有 4 种：
+
+**==已完成（NORMAL）、被取消（CANCELLED）、信号（SIGNAL）和出现异常（EXCEPTIONAL）==**
+
+- 如果任务状态是已完成，则直接返回任务结果。
+
+- 如果任务状态是被取消，则直接抛出 CancellationException
+
+- 如果任务状态是抛出异常，则直接抛出对应的异常
+
+让我们分析一下 doJoin 方法的实现
+
+```java
+    private int doJoin() {
+        int s;
+        Thread t;
+        ForkJoinWorkerThread wt;
+        ForkJoinPool.WorkQueue w;
+        return (s = status) < 0 ? s :
+                ((t = Thread.currentThread()) instanceof ForkJoinWorkerThread) ?
+                        (w = (wt = (ForkJoinWorkerThread) t).workQueue).
+                                tryUnpush(this) && (s = doExec()) < 0 ? s :
+                                wt.pool.awaitJoin(w, this, 0L) :
+                        externalAwaitDone();
+    }
+
+    final int doExec() {
+        int s;
+        boolean completed;
+        if ((s = status) >= 0) {
+            try {
+                completed = exec();
+            } catch (Throwable rex) {
+                return setExceptionalCompletion(rex);
+            }
+            if (completed)
+                s = setCompletion(NORMAL);
+        }
+        return s;
+    }
+```
+
+在 doJoin()方法流程如下:
+
+1. 首先通过查看任务的状态，看任务是否已经执行完成，如果执行完成，则直接返回任务状态；
+
+2. 如果没有执行完，则从任务数组里取出任务并执行。
+3. 如果任务顺利执行完成，则设置任务状态为 NORMAL，如果出现异常，则记录异常，并将任务状态设置为 EXCEPTIONAL。
+
+
+
+## 11.4 Fork/Join 框架的异常处理
+
+ForkJoinTask 在执行的时候可能会抛出异常，但是我们没办法在主线程里直接捕获异常，所以 ForkJoinTask 提供了 isCompletedAbnormally()方法来检查任务是否已经抛出异常或已经被取消了，并且可以通过 ForkJoinTask 的getException 方法获取异常。
+
+getException 方法返回 Throwable 对象，如果任务被取消了则返回CancellationException。如果任务没有完成或者没有抛出异常则返回 null。
+
+
+
+## 11.5 入门案例
+
+**场景: 生成一个计算任务，计算 1+2+3.........+1000**,**==每 100 个数切分一个子任务==**
+
+```java
+class myTask extends RecursiveTask<Integer> {
+
+    private int VALUE = 10;
+    private int begin;
+    private int end;
+    private int result;
+
+    public myTask(int begin, int end) {
+        this.begin = begin;
+        this.end = end;
+    }
+
+    @Override
+    protected Integer compute() {
+        System.out.println("任务 : " + begin + " ========= " + end + " 累加开始");
+
+        if (end - begin + 1 <= VALUE) {
+            for (int i = begin; i <= end; i++) {
+                result += i;
+            }
+        } else {
+            int mid = begin + end >> 1;
+
+            // 划分为两个子任务
+            myTask myTask1 = new myTask(begin, mid);
+            myTask myTask2 = new myTask(mid + 1, end);
+
+            // 异步执行
+            myTask1.fork();
+            myTask2.fork();
+
+            // 同步阻塞获取执行结果
+            result = myTask1.compute() + myTask2.compute();
+        }
+
+        return result;
+    }
+}
+
+public class ForkJoinDemo {
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        ForkJoinPool forkJoinPool = null;
+
+        try {
+            // 定义任务
+            myTask myTask = new myTask(1, 100);
+
+            // 定义执行对象
+            forkJoinPool = new ForkJoinPool();
+
+            // 加入任务执行
+            ForkJoinTask<Integer> result = forkJoinPool.submit(myTask);
+
+            // 输出结果
+            System.out.println(result.get());
+        } finally {
+            forkJoinPool.shutdown();
+        }
+    }
+}
+```
+
+
+
+# 12 CompletableFuture 
+
+## 12.1 CompletableFuture 简介
+
+CompletableFuture 在 Java 里面被用于异步编程，异步通常意味着非阻塞，可以使得我们的任务单独运行在与主线程分离的其他线程中，并且通过回调可以在主线程中得到异步任务的执行状态，是否完成，和是否异常等信息。
+
+CompletableFuture 实现了 Future, CompletionStage 接口，实现了 Future接口就可以兼容现在有线程池框架，而 CompletionStage 接口才是异步编程的接口抽象，里面定义多种异步方法，通过这两者集合，从而打造出了强大的CompletableFuture 类。
+
+
+
+## 12.2 Future 与 CompletableFuture
+
+Futrue 在 Java 里面，通常用来表示一个异步任务的引用，比如我们将任务提交到线程池里面，然后我们会得到一个 Futrue，在 Future 里面有 isDone 方法来 判断任务是否处理结束，还有 get 方法可以一直阻塞直到任务结束然后获取结果，但整体来说这种方式，还是同步的，因为需要客户端不断阻塞等待或者不断轮询才能知道任务是否完成。
+
+**Future 的主要缺点如下：**
+
+（1）不支持手动完成
+
+我提交了一个任务，但是执行太慢了，我通过其他路径已经获取到了任务结果，现在没法把这个任务结果通知到正在执行的线程，所以必须主动取消或者一直等待它执行完成
+
+（2）不支持进一步的非阻塞调用
+
+通过 Future 的 get 方法会一直阻塞到任务完成，但是想在获取任务之后执行额外的任务，因为 Future 不支持回调函数，所以无法实现这个功能
+
+（3）不支持链式调用
+
+对于 Future 的执行结果，我们想继续传到下一个 Future 处理使用，从而形成一个链式的 pipline 调用，这在 Future 中是没法实现的。
+
+（4）不支持多个 Future 合并
+
+比如我们有 10 个 Future 并行执行，我们想在所有的 Future 运行完毕之后，执行某些函数，是没法通过 Future 实现的。
+
+（5）不支持异常处理
+
+Future 的 API 没有任何的异常处理的 api，所以在异步运行时，如果出了问题是不好定位的。
+
+## 12.3 CompletableFuture 入门
+
+### 12.3.1 使用 CompletableFuture
+
+**场景:主线程里面创建一个 CompletableFuture，然后主线程调用 get 方法会阻塞，最后我们在一个子线程中使其终止。**
+
+### 12.3.2 没有返回值的异步任务
+
+```java
+public class CompletableFutureDemo {
+
+    public static void main(String[] args) throws Exception {
+        CompletableFuture<Void> completableFuture1 = CompletableFuture.runAsync(() -> {
+            System.out.println(Thread.currentThread().getName() + " :: completableFuture1");
+        });
+
+        completableFuture1.get();
+    }
+}
+```
+
+### **12.3.3 **有返回值的异步任务
+
+**这里异步返回的两个参数 一个是返回值，一个是运行过程中的异常信息。**
+
+```java
+public class CompletableFutureDemo {
+
+    public static void main(String[] args) throws Exception {
+
+        CompletableFuture<Integer> completableFuture2 = CompletableFuture.supplyAsync(() -> {
+            System.out.println(Thread.currentThread().getName() + " :: completableFuture2");
+            return 1024;
+        });
+
+        completableFuture2.whenComplete((t, e) -> {
+            System.out.println("t = " + t);
+            System.out.println("e = " + e);
+        });
+    }
+}
+```
 
 
 
