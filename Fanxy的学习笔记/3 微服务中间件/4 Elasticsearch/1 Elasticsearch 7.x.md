@@ -385,83 +385,6 @@ http://127.0.0.1:9200/shopping/_doc/1
 }
 ```
 
-**条件查询文档**
-
-```sh
-http://127.0.0.1:9200/shopping/_search
-```
-
-**query String**
-
-```json
-{
-    "query":{
-        "match":{
-            "category":"小米"
-        }
-    }
-}
-```
-
-**分页查询文档**
-
-```sh
-http://127.0.0.1:9200/shopping/_search
-```
-
-**query String**
-
-```json
-{
-    "query":{
-        "match":{
-            "category": "华为"
-        }
-    },
-    "from" : 0,
-    "size" : 2
-}  
-```
-
-**只想查看指定属性**
-
-**query String**
-
-```json
-{
-    "query":{
-        "match":{
-            "category": "华为"
-        }
-    },
-    "from" : 0,
-    "size" : 2,
-    "_source" : ["title"]
-}  
-```
-
-**想对查询结果排序**
-
-**query String**
-
-```json
-{
-    "query":{
-        "match":{
-            "category": "华为"
-        }
-    },
-    "from" : 0,
-    "size" : 2,
-    "_source" : ["title", "price"],
-    "sort": {
-        "price": {
-            "order" : "asc"
-        }
-    }
-}  
-```
-
 ##### **3)** **修改文档**
 
 和新增文档一样，输入相同的 URL 地址请求，如果请求体变化，会将原有的数据内容覆盖
@@ -668,18 +591,18 @@ http://127.0.0.1:9200/student/_mapping
 ```json
 {
         "properties": {
-        "name":{
-            "type": "text",
-            "index": true
-        },
-        "sex":{
-            "type": "text",
-            "index": false
-        },
-        "age":{
-            "type": "long",
-            "index": false
-        }
+            "name":{
+                "type": "text",
+                "index": true
+            },
+            "sex":{
+                "type": "keyword",
+                "index": true
+            },
+            "age":{
+                "type": "long",
+                "index": false
+            }
     }
 }
 ```
@@ -708,7 +631,7 @@ http://127.0.0.1:9200/student/_mapping
   - **false：字段不会被索引，不能用来搜索**
 
 - **store：是否将数据进行独立存储，默认为 false**
-  - **原始的文本会存储在_source 里面，默认情况下其他提取出来的字段都不是独立存储的，是从_source 里面提取出来的。当然你也可以独立的存储某个字段，只要设置"store": true 即可，获取独立存储的字段要比从_source 中解析快得多，但是也会占用更多的空间，所以要根据实际业务需求来设置。**
+  - **原始的文本会存储在`_source` 里面，默认情况下其他提取出来的字段都不是独立存储的，是从`_source` 里面提取出来的。当然你也可以独立的存储某个字段，只要设置"store": true 即可，获取独立存储的字段要比从`_source` 中解析快得多，但是也会占用更多的空间，所以要根据实际业务需求来设置。**
 
 - **analyzer：分词器，这里的 ik_max_word 即使用 ik 分词器,后面会有专门的章节学习**
 
@@ -762,45 +685,1572 @@ http://127.0.0.1:9200/student1
 
 Elasticsearch 提供了基于 JSON 提供完整的查询 DSL 来定义查询
 
-定义数据 :
+##### **1)** **查询所有文档**
+
+在 Postman 中，向 ES 服务器发 **GET** 请求 ：
+
+```sh
+http://127.0.0.1:9200/student/_search
+```
 
 ```json
-# POST /student/_doc/1001
 {
-    "name":"zhangsan",
-    "nickname":"zhangsan",
-    "sex":"男",
-    "age":30
+    "query": {
+    "match_all": {}
+    }
 }
-# POST /student/_doc/1002
+
+# "query"：这里的 query 代表一个查询对象，里面可以有不同的查询属性
+
+# "match_all"：查询类型，例如：match_all(代表查询所有) match, term, range 等等
+
+# {查询条件}：查询条件会根据类型的不同，写法也有差异
+```
+
+**服务器响应结果如下：**
+
+```json
 {
-    "name":"lisi",
-    "nickname":"lisi",
-    "sex":"男",
-    "age":20
-}
-# POST /student/_doc/1003
-{
-    "name":"wangwu",
-    "nickname":"wangwu",
-    "sex":"女",
-    "age":40
-}
-# POST /student/_doc/1004
-{
-    "name":"zhangsan1",
-    "nickname":"zhangsan1",
-    "sex":"女",
-    "age":50
-}
-# POST /student/_doc/1005
-{
-    "name":"zhangsan2",
-    "nickname":"zhangsan2",
-    "sex":"女",
-    "age":30
+    "took【查询花费时间，单位毫秒】" : 1116,
+    "timed_out【是否超时】" : false,
+    "_shards【分片信息】" : {
+        "total【总数】" : 1,
+        "successful【成功】" : 1,
+        "skipped【忽略】" : 0,
+        "failed【失败】" : 0
+    },
+    "hits【搜索命中结果】" : {
+    	"total"【搜索条件匹配的文档总数】: {
+            "value"【总命中计数的值】: 3,
+            "relation"【计数规则】: "eq" # eq 表示计数准确， gte 表示计数不准确
+        },
+        "max_score【匹配度分值】" : 1.0,
+        "hits【命中结果集合】" : [
+        		。。。
+    		}
+    	]
+    }
 }
 ```
+
+##### **2)** **匹配查询**
+
+match 匹配类型查询，会把查询条件进行分词，然后进行查询，多个词条之间是 or 的关系
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+**query String**
+
+```json
+{
+    "query":{
+        "match":{
+            "category":"小米"
+        }
+    }
+}
+```
+
+这里我测试发现紫米，黑米，红米，都能查到，估计是对 **米** 做了分词
+
+##### **3)** **多字段匹配查询**
+
+multi_match 与 match 类似，不同的是它可以在多个字段中查询。
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+    "multi_match": {
+        "query": "小米",
+        "fields": ["title","category"]
+    	}
+    }
+}
+```
+
+##### **4)** **关键字精确查询**
+
+term 查询，精确的关键词匹配查询，不对查询条件进行分词。
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+**query String**
+
+```json
+{
+    "query":{
+        "match_phrase":{
+			"category":"小米"
+        }
+    }
+}
+```
+
+**<font color='bb000'>此时和上面不同，不会因为分词把近似值都查到，只能查到完全准确的答案</font>**
+
+##### **5)** **多关键字精确查询**
+
+terms 查询和 term 查询一样，但它允许你指定多值进行匹配。
+
+如果这个字段包含了指定值中的任何一个值，那么这个文档满足条件，类似于 mysql 的 in 
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+        "bool":{
+            "should":[ 
+                {
+                    "match_phrase":{
+                        "category":"小米"
+                    }
+                },
+                {
+                    "match_phrase":{
+                        "category":"黑米"
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+##### **6)** **指定查询字段**
+
+默认情况下，Elasticsearch 在搜索的结果中，会把文档中保存在_source 的所有字段都返回。
+
+如果我们只想获取其中的部分字段，我们可以添加_source 的过滤
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "_source": ["title","price"], 
+    "query": {
+        "terms": {
+        "category": ["小米"]
+    	}
+    }
+}
+```
+
+##### **7)** **过滤字段**
+
+我们也可以通过：
+
+- includes：来指定想要显示的字段
+
+- excludes：来指定不想要显示的字段
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "_source": {
+    "excludes": ["category","price"]
+    }, 
+    "query": {
+        "terms": {
+        	"category": ["小米"]
+    	}
+    }
+}
+```
+
+##### **8)** **组合查询**
+
+`bool`把各种其它查询通过`must`（必须 ）、`must_not`（必须不）、`should`（应该）的方式进行组合
+
+在 Postman 中，向 ES 服务器发 **GET** 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match": {
+                    "category": "小米"
+                        }
+                    }
+            ],
+            "must_not": [
+                {
+                    "match": {
+                    "price": "3000"
+                        }
+                    }
+            ],
+            "should": [
+                {
+                    "match": {
+                    "title": "小米手机"
+                        }
+                    }
+            ]
+        }
+    }
+}
+```
+
+##### **9)** **范围查询**
+
+range 查询找出那些落在指定区间内的数字或者时间。range 查询允许以下字符
+
+| 操作符 | 说明       |
+| ------ | ---------- |
+| gt     | 大于>      |
+| gte    | 大于等于>= |
+| lt     | 小于<      |
+| lte    | 小于等于<= |
+
+在 Postman 中，向 ES 服务器发 **GET** 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+        "range": {
+            "price": {
+                "gte": 2000,
+                "lte": 4000
+                }
+            }
+    }
+}
+```
+
+##### **10)** **模糊查询**
+
+返回包含与搜索字词相似的字词的文档。
+
+编辑距离是将一个术语转换为另一个术语所需的一个字符更改的次数。这些更改可以包括：
+
+- 更改字符（box → fox）
+
+- 删除字符（black → lack）
+
+- 插入字符（sic → sick）
+
+- 转置两个相邻字符（act → cat）
+
+为了找到相似的术语，fuzzy 查询会在指定的编辑距离内创建一组搜索词的所有可能的变体或扩展。然后查询返回每个扩展的完全匹配。
+
+通过 fuzziness 修改编辑距离。一般使用默认值 AUTO，根据术语的长度生成编辑距离。
+
+在 Postman 中，向 ES 服务器发 **GET** 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+    	"fuzzy": {
+    		"category": {
+                "value": "小米"
+            }
+    	}
+    }
+}
+```
+
+```json
+{
+    "query": {
+    	"fuzzy": {
+    		"category": {
+                "value": "小米",
+                "fuzziiness": 2
+            }
+    	}
+    }
+}
+```
+
+##### **11) 分页查询文档**
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+**query String**
+
+```json
+{
+    "query":{
+        "match":{
+            "category": "华为"
+        }
+    },
+    "from" : 0,
+    "size" : 2
+}  
+```
+
+**只想查看指定属性**
+
+**query String**
+
+```json
+{
+    "query":{
+        "match":{
+            "category": "华为"
+        }
+    },
+    "from" : 0,
+    "size" : 2,
+    "_source" : ["title"]
+}  
+```
+
+**想对查询结果排序【单字段删除一个字段即可】**
+
+**query String**
+
+```json
+{
+    "query":{
+        "match":{
+            "category": "华为"
+        }
+    },
+    "from" : 0,
+    "size" : 2,
+    "_source" : ["title", "price"],
+    "sort": [
+    	{
+            "price": {
+                "order":"desc"
+            }
+        },
+        {
+            "title": {
+                "order":"asc"
+            }
+        }
+    ]
+}  
+```
+
+##### **13)** **高亮查询**
+
+在进行关键字搜索时，搜索出的内容中的关键字会显示不同的颜色，称之为高亮。
+
+Elasticsearch 可以对查询内容中的关键字部分，进行标签和样式(高亮)的设置。
+
+在使用 match 查询的同时，加上一个 highlight 属性：
+
+- pre_tags：前置标签
+
+- post_tags：后置标签
+
+- fields：需要高亮的字段
+
+- title：这里声明 title 字段需要高亮，后面可以为这个字段设置特有配置，也可以空
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "query": {
+    "match": {
+    	"category": "小米"
+    	}
+    },
+    "highlight": {
+        "pre_tags": "<font color='red'>",
+        "post_tags": "</font>",
+        "fields": {
+        "title": {}
+    	}
+    }
+}
+```
+
+![15.png](./1 Elasticsearch 7.x.assets/15.png)
+
+##### 14) 分页查询
+
+from：当前页的起始索引，默认从 0 开始。 from = (pageNum - 1) * size
+
+size：每页显示多少条
+
+在 Postman 中，向 ES 服务器发 **GET** 请求 ：
+
+```sh
+http://127.0.0.1:9200/student/_search
+```
+
+```json
+{
+    "query": {
+    	"match_all": {}
+    	},
+    "sort": [
+        {
+            "age": {
+            "order": "desc"
+        	}
+    	}
+    ],
+    "from": 0,
+    "size": 2
+}
+```
+
+##### **15)** **聚合查询**
+
+聚合允许使用者对 es 文档进行统计分析，类似与关系型数据库中的 group by，当然还有很多其他的聚合，例如取最大值、平均值等等。
+
+- 对某个字段取最大值 max
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"max_price":{
+    		"max":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- 对某个字段取最小值 min
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"min_price":{
+    		"min":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- 对某个字段求和 sum
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"sum_price":{
+    		"sum":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- 对某个字段取平均值 avg
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"avg_price":{
+    		"avg":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- 对某个字段的值进行去重之后再取总数
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"distinct_price":{
+    		"cardinality":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- State 聚合
+
+  **对某个字段一次性返回 count，max，min，avg 和 sum 五个指标**
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"stats_price":{
+    		"stats":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+##### **16)** **桶聚合查询**
+
+桶聚和相当于 sql 中的 group by 语句
+
+- terms 聚合，分组统计
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"age_groupby":{
+    		"terms":{"field":"price"}
+    	}
+    },
+    "size":0
+}
+```
+
+- 在 terms 分组下再进行聚合
+
+在 Postman 中，向 ES 服务器发 GET 请求 ：
+
+```sh
+http://127.0.0.1:9200/shopping/_search
+```
+
+```json
+{
+    "aggs":{
+    	"age_groupby":{
+    		"terms":{"field":"age"}
+    	}
+    },
+    "size":0
+}
+```
+
+### 2.2.5 Java API 操作
+
+Elasticsearch 软件是由 Java 语言开发的，所以也可以通过 Java API 的方式对 Elasticsearch 服务进行访问
+
+#### **2.2.5.1** **创建** **Maven** **项目**
+
+我们在 IDEA 开发工具中创建 Maven 项目(模块也可)ES
+
+修改 pom 文件，增加 Maven 依赖关系
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>7.8.0</version>
+    </dependency>
+    <!-- elasticsearch 的客户端 -->
+    <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-high-level-client</artifactId>
+        <version>7.8.0</version>
+    </dependency>
+    <!-- elasticsearch 依赖 2.x 的 log4j -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.8.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.8.2</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.9.9</version>
+    </dependency>
+    <!-- junit 单元测试 -->
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+    </dependency>
+</dependencies>
+```
+
+#### **2.2.5.2** **客户端对象**
+
+创建 **ESClient** 类，代码中创建 Elasticsearch 客户端对象因为早期版本的客户端对象已经不再推荐使用，且在未来版本中会被删除，所以这里我们采用高级 REST 客户端对象
+
+```java
+public class ESClient {
+    public static void main(String[] args) throws IOException {
+
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+**注意：9200** 端口为 Elasticsearch 的 Web 通信端口**，localhost** 为启动 ES 服务的主机名
+
+#### **2.2.5.3** **索引操作**
+
+ES 服务器正常启动后，可以通过 Java API 客户端对象对 ES 索引进行操作
+
+##### **1)** **创建索引**
+
+```java
+public class ESClient {
+    public static void main(String[] args) throws IOException {
+
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        CreateIndexRequest request = new CreateIndexRequest("user");
+
+        // 创建索引
+        CreateIndexResponse createIndexResponse = 
+            esClient.indices().create(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        boolean acknowledged = createIndexResponse.isAcknowledged();
+
+        System.out.println("是否完成创建 : " + acknowledged);
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+**去postman查询一下结果**
+
+```sh
+http://127.0.0.1:9200/_cat/indices?v 
+```
+
+##### **2)** **查看索引**
+
+```java
+public class ESClient {
+    public static void main(String[] args) throws IOException {
+
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        GetIndexRequest request = new GetIndexRequest("user");
+
+        // 查询索引
+        GetIndexResponse getIndexResponse =
+                esClient.indices().get(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println(getIndexResponse.getAliases());
+        System.out.println(getIndexResponse.getSettings());
+        System.out.println(getIndexResponse.getMappings());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```sh
+{user=[]}
+{user={"index.creation_date":"1692021798782","index.number_of_replicas":"1","index.number_of_shards":"1","index.provided_name":"user","index.uuid":"xVOTLgviSVKQlHK7yf6eiQ","index.version.created":"7080099"}}
+{user=org.elasticsearch.cluster.metadata.MappingMetadata@e1cbb692}
+```
+
+##### **3)** **删除索引**
+
+```java
+public class ESClient {
+    public static void main(String[] args) throws IOException {
+
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        DeleteIndexRequest request = new DeleteIndexRequest("user");
+
+        // 查询索引
+        AcknowledgedResponse acknowledgedResponse = esClient.indices().delete(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println(acknowledgedResponse.isAcknowledged());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+**去postman查询一下结果**
+
+```sh
+http://127.0.0.1:9200/_cat/indices?v 
+```
+
+**发现没了**
+
+#### **2.2.5.4** **文档操作**
+
+##### **1)** **新增文档**
+
+创建数据模型
+
+```java
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class User {
+    private String name;
+    private Integer age;
+    private String sex;
+}
+```
+
+创建数据，添加到文档中
+
+```java
+public class ESClientAdd {
+
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        IndexRequest indexRequest = new IndexRequest();
+
+        // 设置索引和唯一性id
+        indexRequest.index("user").id("1001");
+
+        // 创建数据对象
+        User user = new User("wxf", 23, "男");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String productJson = objectMapper.writeValueAsString(user);
+
+        // 添加文档数据，数据格式为 JSON 格式
+        indexRequest.source(productJson, XContentType.JSON);
+
+        // 客户端发送请求获取响应对象
+        IndexResponse response = esClient.index(indexRequest, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println("response.getIndex() = " + response.getIndex());
+        System.out.println("response.getId() = " + response.getId());
+        System.out.println("response.getResult() = " + response.getResult());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+response.getIndex() = user
+response.getId() = 1001
+response.getResult() = CREATED
+```
+
+##### **2)** **修改文档**
+
+```java
+public class ESClientUpdate {
+
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        UpdateRequest request = new UpdateRequest();
+
+        // 设置索引和唯一性id
+        request.index("user").id("1001");
+        request.doc(XContentType.JSON, "sex", "女");
+
+        // 客户端发送请求获取响应对象
+        UpdateResponse response = esClient.update(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println("response.getResult() = " + response.getResult());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+response.getResult() = UPDATED
+```
+
+##### **3)** **查询文档**
+
+**这里默认其实 `Source` 默认是一个 `Map` 集合，我们打印为了直观可以转化为字符串**
+
+```java
+public class ESClientQuery {
+
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        GetRequest request = new GetRequest();
+
+        // 设置索引和唯一性id
+        request.index("user").id("1001");
+
+        // 客户端发送请求获取响应对象
+        GetResponse response = esClient.get(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println("response.getResult() = " + response.getIndex());
+        System.out.println("response.getType() = " + response.getType());
+        System.out.println("response.getSourceAsString() = " + response.getSourceAsString());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+response.getResult() = user
+response.getType() = _doc
+response.getSourceAsString() = {"name":"wxf","age":23,"sex":"女"}
+```
+
+##### **4)** **删除文档**
+
+```java
+public class ESClientDelete {
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        DeleteRequest request = new DeleteRequest();
+
+        // 设置索引和唯一性id
+        request.index("user").id("1001");
+
+        // 客户端发送请求获取响应对象
+        DeleteResponse response = esClient.delete(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println("response.getResult() = " + response.getResult());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+response.getResult() = DELETED
+```
+
+**可以在postman查**
+
+```apl
+http://127.0.0.1:9200/user/_doc/1001
+```
+
+##### **5)** **批量操作**
+
+**批量添加**
+
+```java
+public class ESClientAddBatch {
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        // 创建请求
+        BulkRequest request = new BulkRequest();
+
+        for (int i = 2; i <= 4; i++) {
+            // 创建数据对象
+            User user = new User("用户" + i, new Random().nextInt(30), "男");
+            ObjectMapper objectMapper = new ObjectMapper();
+            String productJson = objectMapper.writeValueAsString(user);
+
+            // 添加文档数据，数据格式为 JSON 格式
+            request.add(new IndexRequest()
+                        .index("user")
+                        .id(String.valueOf(1000 + i))
+                        .source(productJson, XContentType.JSON));
+        }
+
+
+        // 客户端发送请求获取响应对象
+        BulkResponse response = esClient.bulk(request, RequestOptions.DEFAULT);
+
+        // 响应状态
+        System.out.println("response.getTook() = " + response.getTook());
+        System.out.println("response.getItems() = " + response.getItems());
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+**批量删除同理，只需要id即可删除，不需要填入数据**
+
+```java
+            // 添加文档数据，数据格式为 JSON 格式
+            request.add(new DeleteRequest()
+                        .index("user")
+                        .id(String.valueOf(1000 + i));
+```
+
+#### **2.2.5.5** **高级查询**
+
+**数据准备**
+
+```java
+        for (int i = 1; i <= 5; i++) {
+            // 创建数据对象
+            String sex = i % 2 == 0 ? "男" : "女";
+            User user = new User("用户" + i, new Random().nextInt(30), sex);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String productJson = objectMapper.writeValueAsString(user);
+
+            // 添加文档数据，数据格式为 JSON 格式
+            request.add(new IndexRequest()
+               	   .index("user")
+               	   .id(String.valueOf(1000 + i))
+        		   .source(productJson, XContentType.JSON));
+        }
+```
+
+##### **1)** **请求体查询**
+
+###### **查询所有索引数据**
+
+**matchQuery分词搜索，termQuery完全匹配搜索**
+
+```java
+public class ESClientSearch {
+
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        request.source(new SearchSourceBuilder().query(QueryBuilders.matchAllQuery()));
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+        
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+hits.getTotalHits() = 5 hits
+response.getTook() = 2ms
+{"name":"用户1","age":19,"sex":"女"}
+{"name":"用户2","age":16,"sex":"男"}
+{"name":"用户3","age":26,"sex":"女"}
+{"name":"用户4","age":28,"sex":"男"}
+{"name":"用户5","age":10,"sex":"女"}
+```
+
+###### **term 查询，查询条件为关键字**
+
+```java
+public class ESClientSearchTerm {
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        request.source(new SearchSourceBuilder().query(QueryBuilders.termQuery("sex", "男")));
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+**这里查到条件为性别为男的用户**
+
+```apl
+hits.getTotalHits() = 2 hits
+response.getTook() = 1ms
+{"name":"用户2","age":16,"sex":"男"}
+{"name":"用户4","age":28,"sex":"男"}
+```
+
+###### **分页查询**
+
+```java
+public class ESClientSearchFromSize {
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder().query(QueryBuilders.matchAllQuery());
+        
+        // 分页设置
+        builder.from(0);
+        builder.size(2);
+
+        request.source(builder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+hits.getTotalHits() = 5 hits
+response.getTook() = 1ms
+{"name":"用户1","age":19,"sex":"女"}
+{"name":"用户2","age":16,"sex":"男"}
+```
+
+###### **数据排序**
+
+```java
+public class ESClientSearchSort {
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder().query(QueryBuilders.matchAllQuery());
+		
+        // 设置排序字段和规则
+        builder.sort("age", SortOrder.DESC);
+		
+        request.source(builder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+}
+```
+
+```apl
+hits.getTotalHits() = 5 hits
+response.getTook() = 3ms
+{"name":"用户4","age":28,"sex":"男"}
+{"name":"用户3","age":26,"sex":"女"}
+{"name":"用户1","age":19,"sex":"女"}
+{"name":"用户2","age":16,"sex":"男"}
+{"name":"用户5","age":10,"sex":"女"}
+```
+
+###### **过滤字段**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder().query(QueryBuilders.matchAllQuery());
+
+        String [] includes = {};
+        String [] excludes = {"age"};
+        builder.fetchSource(includes, excludes);
+        request.source(builder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+**可以看到排除了 `age` 字段，`include` 同理**
+
+```apl
+hits.getTotalHits() = 5 hits
+response.getTook() = 1ms
+{"sex":"女","name":"用户1"}
+{"sex":"男","name":"用户2"}
+{"sex":"女","name":"用户3"}
+{"sex":"男","name":"用户4"}
+{"sex":"女","name":"用户5"}
+```
+
+###### **Bool 查询**
+
+**should的意思是推荐，只会影响评分，不会影响查询结果**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        boolQueryBuilder.must(QueryBuilders.matchQuery("age", "28"));
+        // boolQueryBuilder.mustNot(QueryBuilders.matchQuery("age", "28"));
+        // boolQueryBuilder.should(QueryBuilders.matchQuery("age", "28"));
+        sourceBuilder.query(boolQueryBuilder);
+
+
+        request.source(sourceBuilder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+```apl
+hits.getTotalHits() = 1 hits
+response.getTook() = 3ms
+{"name":"用户4","age":28,"sex":"男"}
+```
+
+###### **范围查询**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("age");
+
+        rangeQueryBuilder.gte(20);
+        rangeQueryBuilder.lte(30);
+        
+        sourceBuilder.query(rangeQueryBuilder);
+
+        request.source(sourceBuilder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+```apl
+hits.getTotalHits() = 2 hits
+response.getTook() = 1ms
+{"name":"用户3","age":26,"sex":"女"}
+{"name":"用户4","age":28,"sex":"男"}
+```
+
+###### **模糊查询**
+
+**中文自动分词 所以直接match就可以了**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.fuzzyQuery("name", "用户").fuzziness(Fuzziness.ONE));
+
+        request.source(sourceBuilder);
+
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+##### **2)** **高亮查询**
+
+**<font color='red'>注意：这里配置日志才能看到加了标签，要不然返回的结果集是不带的</font>**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.preTags("<font color='red'>");
+        highlightBuilder.postTags("</font>");
+        highlightBuilder.field("age");
+
+        builder.highlighter(highlightBuilder);
+
+        builder.query(QueryBuilders.termQuery("age", "28"));
+
+        request.source(builder);
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHits hits = response.getHits();
+
+        System.out.println("hits.getTotalHits() = " + hits.getTotalHits());
+        System.out.println("response.getTook() = " + response.getTook());
+
+        for (SearchHit hit : hits) {
+            System.out.println(hit.getSourceAsString());
+        }
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+##### **3)** **聚合查询**
+
+###### 最大年龄
+
+**获取最大年龄【这里不加日志看不出来，但是也可以直接通过 `response` 的属性然后转化为`json` 串获取】**
+
+```java
+new ObjectMapper().writeValueAsString(searchResponse.getAggregations()))
+```
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+
+        builder.aggregation(AggregationBuilders.max("MaxAge").field("age"));
+
+        request.source(builder);
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+        String str = new ObjectMapper().writeValueAsString(response.getAggregations());
+        System.out.println(str);
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+```json
+{"asMap":{"MaxAge":{"name":"MaxAge","metadata":null,"value":28.0,"valueAsString":"28.0","type":"max","fragment":true}},"fragment":true}
+```
+
+###### 分组统计
+
+**这里没法使用性别和名字，因为中文没有给分词，使用全部匹配 `keyword` 查询。**
+
+```java
+    public static void main(String[] args) throws IOException {
+        // 创建 ES 客户端
+        RestHighLevelClient esClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"))
+        );
+
+        SearchRequest request = new SearchRequest();
+        request.indices("user");
+
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+
+        builder.aggregation(AggregationBuilders.terms("ageGroup").field("age"));
+
+        request.source(builder);
+        SearchResponse response = esClient.search(request, RequestOptions.DEFAULT);
+
+
+        String str = new ObjectMapper().writeValueAsString(response.getAggregations());
+        System.out.println(str);
+
+        // 关闭 ES 客户端
+        esClient.close();
+    }
+```
+
+```json
+{"asMap":{"ageGroup":{"name":"ageGroup","metadata":null,"buckets":[{"aggregations":{"asMap":{},"fragment":true},"keyAsString":"10","docCount":1,"docCountError":0,"key":10,"keyAsNumber":10,"fragment":true},{"aggregations":{"asMap":{},"fragment":true},"keyAsString":"16","docCount":1,"docCountError":0,"key":16,"keyAsNumber":16,"fragment":true},{"aggregations":{"asMap":{},"fragment":true},"keyAsString":"19","docCount":1,"docCountError":0,"key":19,"keyAsNumber":19,"fragment":true},{"aggregations":{"asMap":{},"fragment":true},"keyAsString":"26","docCount":1,"docCountError":0,"key":26,"keyAsNumber":26,"fragment":true},{"aggregations":{"asMap":{},"fragment":true},"keyAsString":"28","docCount":1,"docCountError":0,"key":28,"keyAsNumber":28,"fragment":true}],"type":"lterms","docCountError":0,"sumOfOtherDocCounts":0,"fragment":true}},"fragment":true}
+```
+
+# 第3章 Elasticsearch 环境
+
+## **3.1** **相关概念**
+
+### **3.1.1** **单机** **&** **集群**
+
+单台 Elasticsearch 服务器提供服务，往往都有最大的负载能力，超过这个阈值，服务器性能就会大大降低甚至不可用，所以生产环境中，一般都是运行在指定服务器集群中。除了负载能力，单点服务器也存在其他问题：
+
+- 单台机器存储容量有限
+
+- 单服务器容易出现单点故障，无法实现高可用
+
+- 单服务的并发处理能力有限
+
+配置服务器集群时，集群中节点数量没有限制，大于等于 2 个节点就可以看做是集群了。一般出于高性能及高可用方面来考虑集群中节点数量都是 3 个以上。
+
+**3.1.2** **集群** **Cluster**
+
+一个集群就是由一个或多个服务器节点组织在一起，共同持有整个的数据，并一起提供索引和搜索功能。一个 Elasticsearch 集群有一个唯一的名字标识，这个名字默认就是”elasticsearch”。这个名字是重要的，因为一个节点只能通过指定某个集群的名字，来加入这个集群。
+
+**3.1.3** **节点** **Node**
+
+集群中包含很多服务器，一个节点就是其中的一个服务器。作为集群的一部分，它存储数据，参与集群的索引和搜索功能。
+
+一个节点也是由一个名字来标识的，默认情况下，这个名字是一个随机的漫威漫画角色的名字，这个名字会在启动的时候赋予节点。这个名字对于管理工作来说挺重要的，因为在这个管理过程中，你会去确定网络中的哪些服务器对应于 Elasticsearch 集群中的哪些节点。
+
+一个节点可以通过配置集群名称的方式来加入一个指定的集群。默认情况下，每个节点都会被安排加入到一个叫做“elasticsearch”的集群中，这意味着，如果你在你的网络中启动了若干个节点，并假定它们能够相互发现彼此，它们将会自动地形成并加入到一个叫做“elasticsearch”的集群中。
+
+在一个集群里，只要你想，可以拥有任意多个节点。而且，如果当前你的网络中没有运行任何 Elasticsearch 节点，这时启动一个节点，会默认创建并加入一个叫做“elasticsearch”的集群。
+
+## **3.2 Windows** **集群**
+
+### **3.2.1** **部署集群**
+
+1) 创建 elasticsearch-cluster 文件夹，在内部复制三个 elasticsearch 服务
+
+ **这里直接删除之前的data和log文件夹，把之前残留的日志和数据删除**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
