@@ -3005,7 +3005,7 @@ Elasticsearch 使用一种称为**倒排索引**的结构，它适用于快速�
 
 <img src="./1 Elasticsearch 7.x.assets/40.png" alt="40.png" style="zoom:50%;" />
 
-现在，如果我们想搜索 **quick **        **brown** ，我们只需要查找包含每个词条的文档：
+现在，如果我们想搜索 **quick **  **brown     这两个词** ，我们只需要查找包含每个词条的文档：
 
 ![41.png](./1 Elasticsearch 7.x.assets/41.png)
 
@@ -3141,11 +3141,11 @@ PUT /users/_settings
 
 如果没有用 fsync 把数据从文件系统缓存刷（flush）到硬盘，我们不能保证数据在断电甚至是程序正常退出之后依然存在。为了保证 Elasticsearch 的可靠性，需要确保数据变化被持久化到磁盘。在 动态更新索引，我们说一次完整的提交会将段刷到磁盘，并写入一个包含所有段列表的提交点。Elasticsearch 在启动或重新打开一个索引的过程中使用这个提交点来判断哪些段隶属于当前分片。
 
-即使通过每秒刷新（refresh）实现了近实时搜索，我们仍然需要经常进行完整提交来确保能从失败中恢复。但在两次提交之间发生变化的文档怎么办？我们也不希望丢失掉这些数据。Elasticsearch 增加了一个 translog ，或者叫事务日志，在每一次对 Elasticsearch 进行操作时均进行了日志记录
+即使通过每秒刷新（refresh）实现了近实时搜索，我们仍然需要经常进行完整提交来确保能从失败中恢复。但在两次提交之间发生变化的文档怎么办？我们也不希望丢失掉这些数据。Elasticsearch 增加了一个 translog ，或者叫事务日志，在每一次对 Elasticsearch 进行操作时均进行了日志记录。
 
 整个流程如下：
 
-1. 一个文档被索引之后，就会被添加到内存缓冲区，并且追加到了 translog
+1. 一个文档被索引之后，就会被添加到内存缓冲区，并且追加到了 translog。
 
 <img src="./1 Elasticsearch 7.x.assets/48.png" alt="48.png" style="zoom:50%;" />
 
@@ -3153,13 +3153,13 @@ PUT /users/_settings
 
 - 这些在内存缓冲区的文档被写入到一个新的段中，且没有进行 fsync 操作。
 
-- 这个段被打开，使其可被搜索
+- 这个段被打开，使其可被搜索。
 
-- 内存缓冲区被清空
+- 内存缓冲区被清空。
 
 <img src="./1 Elasticsearch 7.x.assets/49.png" alt="49.png" style="zoom:50%;" />
 
-3. 这个进程继续工作，更多的文档被添加到内存缓冲区和追加到事务日志
+3. 这个进程继续工作，更多的文档被添加到内存缓冲区和追加到事务日志。
 
 <img src="./1 Elasticsearch 7.x.assets/50.png" alt="50.png" style="zoom:50%;" />
 
@@ -3443,11 +3443,8 @@ GET http://localhost:1001/_analyze
 
 ```json
 {
-
     "text":"弗雷尔卓德",
-
     "analyzer":"ik_max_word"
-
 }
 ```
 
@@ -3616,7 +3613,7 @@ http://localhost:1001/shopping/_update/1001?if_seq_no=1&if_primary_term=1
 
 一个常见的设置是使用其它数据库作为主要的数据存储，使用 Elasticsearch 做数据检索， 这意味着主数据库的所有更改发生时都需要被复制到 Elasticsearch ，如果多个进程负责这一数据同步，你可能遇到类似于之前描述的并发问题。
 
-**如果你的主数据库已经有了版本号 —> 或一个能作为版本号的字段值比如 timestamp —> 那么你就可以在 Elasticsearch 中通过增加 version_type=external 到查询字符串的方式重用这些相同的版本号， 版本号必须是大于零的整数， 且小于 9.2E+18 — 一个 Java 中 long 类型的正值。**
+**如果你的主数据库已经有了版本号 —> 或一个能作为版本号的字段值比如 timestamp —> 那么你就可以在 Elasticsearch 中通过增加 version_type=external 到查询字符串的方式重用这些相同的版本号， 版本号必须是大于零的整数， 且小于 9.2E+18  —>  一个 Java 中 long 类型的正值。**
 
 外部版本号的处理方式和我们之前讨论的内部版本号的处理方式有些不同，Elasticsearch 不是检查当前 _version 和请求中指定的版本号是否相同， **而是检查当前 _version 是否 小于 指定的版本号。 如果请求成功，外部的版本号作为文档的新 _version 进行存储。**
 
@@ -3634,7 +3631,7 @@ http://localhost:1001/shopping/_update/1001?version=10003&version_type=external
 
 外部版本号不仅在索引和删除请求是可以指定，而且在 创建 新文档时也可以指定。
 
-## **4.5 Kibana**
+## 4.5 Kibana
 
 Kibana 是一个免费且开放的用户界面，能够让你对 Elasticsearch 数据进行可视化，并让你在 Elastic Stack 中进行导航。你可以进行各种操作，从跟踪查询负载，到理解请求如何流经你的整个应用，都能轻松完成。
 
@@ -3680,7 +3677,7 @@ Spring Data 常用的功能模块如下：
 
 <img src="./1 Elasticsearch 7.x.assets/55.png" alt="55.png" style="zoom: 67%;" />
 
-### **5.1.2 Spring Data Elasticsearch** **介绍**
+### 5.1.2 Spring Data Elasticsearch 介绍
 
 Spring Data Elasticsearch 基于 spring data API 简化 Elasticsearch 操作，将原始操作Elasticsearch 的客户端 API 进行封装 。Spring Data 为 Elasticsearch 项目提供集成搜索引擎。
 
@@ -3690,17 +3687,21 @@ Spring Data Elasticsearch POJO 的关键功能区域为中心的模型与 Elasti
 
 <img src="./1 Elasticsearch 7.x.assets/56.png" alt="56.png" style="zoom:67%;" />
 
-### **5.1.3 Spring Data Elasticsearch** **版本对比**
+### 5.1.3 Spring Data Elasticsearch **版本对比**
 
 <img src="./1 Elasticsearch 7.x.assets/57.png" alt="57.png" style="zoom: 50%;" />
 
 目前最新 springboot 对应 Elasticsearch7.6.2，Spring boot2.3.x 一般可以兼容 Elasticsearch7.x
 
-### **5.1.4** **框架集成**
+### 5.1.4 Spring Data 框架集成实操【重要！！】
 
-1. 创建 Maven 项目
+1 创建 Maven 项目
 
-2. 修改 pom 文件，增加依赖关系
+2 修改 pom 文件，增加依赖关系
+
+<img src="./1 Elasticsearch 7.x.assets/66.png" alt="66.png" style="zoom: 80%;" />
+
+**或者你可以和教材一样，自己改pom**
 
 ```xml
 <dependencies>
@@ -3715,14 +3716,14 @@ Spring Data Elasticsearch POJO 的关键功能区域为中心的模型与 Elasti
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-devtools</artifactId>
-    <scope>runtime</scope>
-    <optional>true</optional>
+        <scope>runtime</scope>
+        <optional>true</optional>
     </dependency>
         <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-    </dependency>
+        <scope>test</scope>
+        </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-test</artifactId>
@@ -3738,27 +3739,41 @@ Spring Data Elasticsearch POJO 的关键功能区域为中心的模型与 Elasti
 </dependencies>     
 ```
 
-3. 增加配置文件
+#### 3 增加配置文件
 
-在 resources 目录中增加 application.properties 文件
+在 resources 目录中增加 application.yaml 文件，新版完全可以直接用我这个配置，不需要专门写配置类，旧版可以按注释掉的来。
 
 ```properties
-# es 服务地址
-elasticsearch.host=127.0.0.1
-# es 服务端口
-elasticsearch.port=9200
-# 配置日志级别,开启 debug 日志
-logging.level.com.atguigu.es=debug
+## es 服务地址
+#elasticsearch.host: 127.0.0.1
+#  # es 服务端口
+#elasticsearch.port: 1001
+
+
+  # 配置日志级别,开启 debug 日志
+logging:
+  level:
+    com:
+      fanxy:
+        bootelasticsearch: debug
+spring:
+  elasticsearch:
+    uris: localhost:1001,localhost:1002,localhost:1003
+
 ```
 
-4. SpringBoot 主程序
-5. 数据实体类
+4 SpringBoot 主程序
+
+**略**
+
+#### 5 数据实体类
 
 ```java
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Document(indexName = "product", shards = 3, replicas = 1)
 public class Product {
     private Long id;//商品唯一标识
     private String title;//商品名称
@@ -3768,7 +3783,7 @@ public class Product {
 }
 ```
 
-6. 配置类
+**<font color='red'>6 配置类【新版可以不写这个配置类】</font>**
 
 - ElasticsearchRestTemplate 是 spring-data-elasticsearch 项目中的一个类，和其他 spring 项目中的 template类似。
 
@@ -3776,7 +3791,7 @@ public class Product {
 
 - 原因是 ElasticsearchTemplate 基于 TransportClient，TransportClient 即将在 8.x 以后的版本中移除。所以，我们推荐使用 ElasticsearchRestTemplate。
 
-- ElasticsearchRestTemplate 基 于 RestHighLevelClient 客户端的。需要自定义配置类，继承AbstractElasticsearchConfiguration，并实现 elasticsearchClient()抽象方法，创建 RestHighLevelClient 对象。
+- ElasticsearchRestTemplate 基于 RestHighLevelClient 客户端的。需要自定义配置类，继承AbstractElasticsearchConfiguration，并实现 elasticsearchClient()抽象方法，创建 RestHighLevelClient 对象。
 
 ```java
 @ConfigurationProperties(prefix = "elasticsearch")
@@ -3796,7 +3811,7 @@ public class ElasticsearchConfig extends AbstractElasticsearchConfiguration {
 }
 ```
 
-7. DAO 数据访问对象
+#### 7 DAO 数据访问对象
 
 ```java
 @Repository
@@ -3805,14 +3820,14 @@ public interface ProductDao extends ElasticsearchRepository<Product,Long> {
 }
 ```
 
-8. 实体类映射操作
+#### 8 实体类映射操作
 
 ```java
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Document(indexName = "shopping", shards = 3, replicas = 1)
+@Document(indexName = "product", shards = 3, replicas = 1)
 public class Product {
     //必须有 id,这里的 id 是全局唯一的标识，等同于 es 中的"_id"
     @Id
@@ -3834,7 +3849,9 @@ public class Product {
 }
 ```
 
-9. 索引操作
+#### 9 索引操作
+
+**这里我创建在测试包里面，这里导包注意一下，如果用 junit 5 和 junit 4 导包不同，java基础学过的，5 是 jupyper的。**
 
 ```java
 @RunWith(SpringRunner.class)
@@ -3843,22 +3860,33 @@ public class SpringDataESIndexTest {
     //注入 ElasticsearchRestTemplate
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
+
     //创建索引并增加映射配置
     @Test
-    public void createIndex(){
+    public void createIndex() {
         //创建索引，系统初始化会自动创建索引
         System.out.println("创建索引");
     }
+
     @Test
-    public void deleteIndex(){
+    public void deleteIndex() {
         //创建索引，系统初始化会自动创建索引
-        boolean flg = elasticsearchRestTemplate.deleteIndex(Product.class);
-        System.out.println("删除索引 = " + flg);
+        boolean flag = elasticsearchRestTemplate.indexOps(IndexCoordinates.of("product")).delete();
+
+        System.out.println("删除索引 = " + flag);
     }
-}    
+}
 ```
 
-10. 文档操作
+#### 10 文档操作【关键】
+
+1. **使用 `save` 方法，可以完成新增和更新【id 相同】**
+
+2. **而查询可以使用 `findById` ，`findAll`**
+
+3. **删除可以使用 `delete` 方法，直接根据传入的对象进行匹配删除，其实还是根据 Id 属性删除的，如果没有这个属性也不会报错，是返回 `void` 的方法**
+4. **批量保存使用 `addAll` 只需要给对象封装一个 List 集合，调用函数即可完成**
+5. **分页查询需要使用 es 的 api 新建一个 `Sort` 类对象，根据`枚举类属性`选择升降序，填入`排序依据的对象属性`，然后新建 `PageRequest`，把 `Sort` 对象放入，同时填入 `from  size 两个关键元素`**
 
 ```java
 @RunWith(SpringRunner.class)
@@ -3931,10 +3959,10 @@ public class SpringDataESProductDaoTest {
     public void findByPageable(){
         //设置排序(排序方式，正序还是倒序，排序的 id)
         Sort sort = Sort.by(Sort.Direction.DESC,"id");
-        int currentPage=0;//当前页，第一页从 0 开始，1 表示第二页
-        int pageSize = 5;//每页显示多少条
+        int from = 0;//当前页，第一页从 0 开始，1 表示第二页
+        int size = 5;//每页显示多少条
         //设置查询分页
-        PageRequest pageRequest = PageRequest.of(currentPage, pageSize,sort);
+        PageRequest pageRequest = PageRequest.of(from, size, sort);
         //分页查询
         Page<Product> productPage = productDao.findAll(pageRequest);
         for (Product Product : productPage.getContent()) {
@@ -3944,7 +3972,9 @@ public class SpringDataESProductDaoTest {
 }    
 ```
 
-11. 文档搜索
+#### 11 文档搜索【关键】
+
+**新版本要 用 NativeSearchQuery 来套QueryBuilders，然后调用elasticsearchRestTemplate的search套NativeSearchQuery来查询**
 
 ```java
 @RunWith(SpringRunner.class)
@@ -4111,11 +4141,11 @@ ES 提供了 Bulk API 支持批量操作，当我们有大量的写任务时，�
 
 通用的策略如下：Bulk 默认设置批量提交的数据量不能超过 100M。数据条数一般是根据文档的大小和服务器性能而定的，但是单次批处理的数据大小应从 5MB～15MB 逐渐增加，当性能没有提升时，把这个数据量作为最大值。
 
-### **6.4.2** **优化存储设备**
+### 6.4.2 优化存储设备
 
 ES 是一种密集使用磁盘的应用，在段合并的时候会频繁操作磁盘，所以对磁盘要求较高，当磁盘速度提升之后，集群的整体性能会大幅度提高。
 
-### **6.4.3** **合理使用合并**
+### 6.4.3 合理使用合并
 
 Lucene 以段的形式存储数据。当有新的数据写入索引时，Lucene 就会自动创建一个新的段。
 
@@ -4123,7 +4153,7 @@ Lucene 以段的形式存储数据。当有新的数据写入索引时，Lucene 
 
 由于 Lucene 段合并的计算量庞大，会消耗大量的 I/O，所以 ES 默认采用较保守的策略，让后台定期进行段合并
 
-### **6.4.4** **减少** **Refresh** **的次数**
+### 6.4.4 **减少** Refresh 的次数
 
 Lucene 在新增数据时，采用了延迟写入的策略，默认情况下索引的 refresh_interval 为1 秒。
 
@@ -4133,7 +4163,7 @@ Lucene 将待写入的数据先写到内存中，超过 1 秒（默认）时就�
 
 这样还可以有效地减少段刷新次数，但这同时意味着需要消耗更多的 Heap 内存。
 
-### **6.4.5** **加大** **Flush** **设置**
+### 6.4.5 加大 Flush 设置
 
 Flush 的主要目的是把文件缓存系统中的段持久化到硬盘，当 Translog 的数据量达到512MB 或者 30 分钟时，会触发一次 Flush。
 
@@ -4141,7 +4171,7 @@ index.translog.flush_threshold_size 参数的默认值是 512MB，我们进行�
 
 增加参数值意味着文件缓存系统中可能需要存储更多的数据，所以我们需要为操作系统的文件缓存系统留下足够的空间。
 
-### **6.4.6** **减少副本的数量**
+### **6.4.6** 减少副本的数量
 
 ES 为了保证集群的可用性，提供了 Replicas（副本）支持，然而每个副本也会执行分析、索引及可能的合并过程，所以 Replicas 的数量会严重影响写索引的效率。
 
@@ -4215,9 +4245,7 @@ ES 默认安装后设置的内存是 1GB，对于任何一个现实业务来说�
 
 - **网络问题**：集群间的网络延迟导致一些节点访问不到 master，认为 master 挂掉了从而选举出新的 master，并对 master 上的分片和副本标红，分配新的主分片
 
-- **节点负载**：主节点的角色既为 master 又为 data，访问量较大时可能会导致 ES 停止响应造成大面积延
-
-迟，此时其他节点得不到主节点的响应认为主节点挂掉了，会重新选取主节点。
+- **节点负载**：主节点的角色既为 master 又为 data，访问量较大时可能会导致 ES 停止响应造成大面积延迟，此时其他节点得不到主节点的响应认为主节点挂掉了，会重新选取主节点。
 
 - **内存回收**：data 节点上的 ES 进程占用的内存较大，引发 JVM 的大规模内存回收，造成 ES 进程失去响应。
 
@@ -4242,8 +4270,6 @@ ES 默认安装后设置的内存是 1GB，对于任何一个现实业务来说�
 - 协调节点默认使用文档 ID 参与计算（也支持通过 routing），以便为路由提供合适的分片：
 
   **shard = hash(document_id) % (num_of_primary_shards)**
-
-
 
 - 当分片所在的节点接收到来自协调节点的请求后，会将请求写入到 Memory Buffer，然后定时（默认是每隔 1 秒）写入到 Filesystem Cache，这个从 Memory Buffer 到 Filesystem Cache 的过程就叫做 refresh；
 - 当然在某些情况下，存在 Momery Buffer 和 Filesystem Cache 的数据可能会丢失，ES 是通过 translog的机制来保证数据的可靠性的。其实现机制是接收到请求后，同时也会写入到 translog 中，当 Filesystem cache 中的数据写入到磁盘中时，才会清除掉，这个过程叫做 flush；
@@ -4284,9 +4310,7 @@ ES 默认安装后设置的内存是 1GB，对于任何一个现实业务来说�
 
 - 即使数据中心们近在咫尺，也要避免集群跨越多个数据中心。绝对要避免集群跨越大的地理距离。
 
-- 请确保运行你应用程序的 JVM 和服务器的 JVM 是完全一样的。 在 Elasticsearch 的几个地方，使
-
-  用 Java 的本地序列化。
+- 请确保运行你应用程序的 JVM 和服务器的 JVM 是完全一样的。 在 Elasticsearch 的几个地方，使用 Java 的本地序列化。
 
 - 通过设置 gateway.recover_after_nodes、gateway.expected_nodes、gateway.recover_after_time 可以在集群重启的时候避免过多的分片交换，这可能会让数据恢复从数个小时缩短为几秒钟。
 
@@ -4328,47 +4352,21 @@ ES 默认安装后设置的内存是 1GB，对于任何一个现实业务来说�
 
 ## **7.9 Elasticsearch** **对于大数据量（上亿量级）的聚合如何实现？**
 
-Elasticsearch 提供的首个近似聚合是 cardinality 度量。它提供一个字段的基数，即该字段的 distinct
-
-或者 unique 值的数目。它是基于 HLL 算法的。HLL 会先对我们的输入作哈希运算，然后根据哈希运算的
-
-结果中的 bits 做概率估算从而得到基数。其特点是：可配置的精度，用来控制内存的使用（更精确 ＝ 更
-
-多内存）；小的数据集精度是非常高的；我们可以通过配置参数，来设置去重需要的固定内存使用量。无
-
-论数千还是数十亿的唯一值，内存使用量只与你配置的精确度相关
+Elasticsearch 提供的首个近似聚合是 cardinality 度量。它提供一个字段的基数，即该字段的 distinct或者 unique 值的数目。它是基于 HLL 算法的。HLL 会先对我们的输入作哈希运算，然后根据哈希运算的结果中的 bits 做概率估算从而得到基数。其特点是：可配置的精度，用来控制内存的使用（更精确 ＝ 更多内存）；小的数据集精度是非常高的；我们可以通过配置参数，来设置去重需要的固定内存使用量。无论数千还是数十亿的唯一值，内存使用量只与你配置的精确度相关
 
 ## **7.10** **在并发情况下，Elasticsearch **如果保证读写一致？
 
- 
+- 可以通过版本号使用乐观并发控制，以确保新版本不会被旧版本覆盖，由应用层来处理具体的冲突；
+- 另外对于写操作，一致性级别支持 quorum/one/all，默认为 quorum，即只有当大多数分片可用时才允许写操作。但即使大多数可用，也可能存在因为网络等原因导致写入副本失败，这样该副本被认为故障，分片将会在一个不同的节点上重建。
+- 对于读操作，可以设置 replication 为 sync(默认)，这使得操作在主分片和副本分片都完成后才会返回；如果设置 replication 为 async 时，也可以通过设置搜索请求参数_preference 为 primary 来查询主分片，确保文档是最新版本。
 
-可以通过版本号使用乐观并发控制，以确保新版本不会被旧版本覆盖，由应用层来处理具体的冲突；
-
- 
-
-另外对于写操作，一致性级别支持 quorum/one/all，默认为 quorum，即只有当大多数分片可用时才允
-
-许写操作。但即使大多数可用，也可能存在因为网络等原因导致写入副本失败，这样该副本被认为故
-
-障，分片将会在一个不同的节点上重建。
-
- 
-
-对于读操作，可以设置 replication 为 sync(默认)，这使得操作在主分片和副本分片都完成后才会返回；
-
-如果设置 replication 为 async 时，也可以通过设置搜索请求参数_preference 为 primary 来查询主分片，
-
-确保文档是最新版本。
-
-**7.11** **如何监控** **Elasticsearch** **集群状态？**
+## **7.11** **如何监控** **Elasticsearch** **集群状态？**
 
 elasticsearch-head 插件
 
-通过 Kibana 监控 Elasticsearch。你可以实时查看你的集群健康状态和性能，也可以分析过去的集群、
+通过 Kibana 监控 Elasticsearch。你可以实时查看你的集群健康状态和性能，也可以分析过去的集群、索引和节点指标
 
-索引和节点指标
-
-**7.12** **是否了解字典树？**
+## 7.12 是否了解字典树？
 
 - 常用字典数据结构如下所示:
 
