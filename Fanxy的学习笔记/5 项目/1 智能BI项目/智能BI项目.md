@@ -345,8 +345,8 @@ USE `xybi`;
 
 1. **`AUTO` 数据库ID 自增**
 2. **`INPUT` 用户输入ID**
-3. **如果不设置类型值，默认则使用`IdType.ASSIGN_ID`策略（自3.3.0起）。该策略会使用雪花算法自动生成主键ID，主键类型为长或字符串（分别对应的 `MySQL` 的表字段为 `BIGINT` 和 `VARCHAR` ）**
-4. **`ASSIGN_UUID`（排除中划线的`UUID`策略，并重新自动生成排除中划线的`UUID`作为主键。主键类型为`String`，对应MySQL的表分段为`VARCHAR（32）`**
+3. **`ASSIGN_ID` : 分配 ID(主键类型为 Number(Long 和 Integer)或 String)(since 3.3.0),使用接口`IdentifierGenerator`的方法`nextId`(默认实现类为`DefaultIdentifierGenerator`雪花算法)**
+4. **`ASSIGN_UUID` 分配 UUID,主键类型为 String(since 3.3.0),使用接口`IdentifierGenerator`的方法`nextUUID`(默认 default 方法) **
 5. **`NONE` 该类型为未设置主键类型**
 
 ![16.png](./智能BI项目.assets/16.png)
@@ -722,5 +722,19 @@ subTitle={
 
 ![89.png](./智能BI项目.assets/89.png)
 
-**当前完成到 49 分钟**
+ 
+
+当前进度卡在 第二个视频的 49分钟， 先把用户中心项目学了，再来接着学这个。
+
+给前后端补一下知识，目前前置知识不足。
+
+
+
+
+
+
+
+
+
+
 
