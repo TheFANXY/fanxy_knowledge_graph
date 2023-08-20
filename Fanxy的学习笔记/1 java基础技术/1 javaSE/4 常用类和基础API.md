@@ -270,6 +270,8 @@ public class TestString {
 - **String(byte[]，int offset，int length)** ：用指定的字节数组的一部分，即从数组起始位置offset开始取length个字节构造一个字符串对象。
 - **String(byte[], String charsetName )** 或 **new String(byte[], int, int,String charsetName)**：解码，按照指定的编码方式进行解码。
 
+
+
 ## 1.4 String的常用API-2
 
 `String` 类包括的方法可用于检查序列的单个字符、比较字符串、搜索字符串、提取子字符串、创建字符串副本并将所有字符全部转换为大写或小写。
@@ -298,6 +300,8 @@ public class TestString {
 
 **（11）public String intern()：结果在常量池中共享**
 
+
+
 ### 1.4.2 系列2：查找
 
 **（11）boolean contains(xx)：是否包含xx** 
@@ -310,11 +314,15 @@ public class TestString {
 
 **（15）int lastIndexOf(String str, int fromIndex)：返回指定子字符串在此字符串中最后一次出现处的索引，从指定的索引开始反向搜索**
 
+
+
 ### **1.4.3 系列3：字符串截取**
 
 **（16）String substring(int beginIndex) ：返回一个新的字符串，它是此字符串的从beginIndex开始截取到最后的一个子字符串**
 
 **（17）String substring(int beginIndex, int endIndex) ：返回一个新字符串，它是此字符串从beginIndex开始截取到endIndex(不包含)的一个子字符串**
+
+
 
 ### 1.4.4 系列4：和字符/字符数组相关
 
@@ -330,6 +338,8 @@ public class TestString {
 
 **（23）static String copyValueOf(char[] data, int offset, int count)：返回指定数组中表示该字符序列的 String**
 
+
+
 ### 1.4.5 系列5：开头与结尾
 
 **（24）boolean startsWith(xx)：测试此字符串是否以指定的前缀开始** 
@@ -337,6 +347,8 @@ public class TestString {
 **（25）boolean startsWith(String prefix, int toffset)：测试此字符串从指定索引开始的子字符串是否以指定前缀开始** 
 
 **（26）boolean endsWith(xx)：测试此字符串是否以指定的后缀结束**
+
+
 
 ### 1.4.6 系列6：替换
 
@@ -348,7 +360,9 @@ public class TestString {
 
 **（30）String replaceFirst(String regex, String replacement)：使用给定的 replacement 替换此字符串匹配给定的正则表达式的第一个子字符串**
 
-# 2. 字符串相关类之可变字符序列：`StringBuffer`、`StringBuilder`
+
+
+# 2. 可变字符序列：`StringBuffer`、`StringBuilder`
 
  因为String对象是不可变对象，虽然可以共享常量对象，但是**对于频繁字符串的修改和拼接操作，效率极低，空间消耗也比较高**。因此，JDK又在java.lang包提供了**可变字符序列StringBuffer和StringBuilder类型。**
 

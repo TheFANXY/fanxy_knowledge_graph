@@ -1732,7 +1732,7 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 - offer(E o, long timeout, TimeUnit unit)：可以设定等待的时间，如果在指定的时间内，还不能往队列中加入 BlockingQueue，则返回失败
 
-- put(anObject):把 anObject 加到 BlockingQueue 里,如果 BlockQueue 没有空间,则调用此方法的线程被阻断直到 BlockingQueue 里面有空间再继续.
+- put(anObject):把 anObject 加到 BlockingQueue 里,如果 BlockQueue 没有空间,则调用此方法的线程被阻断直到 BlockingQueue 里面有空间再继续
 
 **2.获取数据**
 
@@ -1740,7 +1740,7 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 - poll(long timeout, TimeUnit unit)：从 BlockingQueue 取出一个队首的对象，如果在指定时间内，队列一旦有数据可取，则立即返回队列中的数据。否则知道时间超时还没有数据可取，返回失败。
 
-- take(): 取走 BlockingQueue 里排在首位的对象,若 BlockingQueue 为空,**阻断进入等待状态直到 BlockingQueue 有新的数据被加入**;
+- take(): 取走 BlockingQueue 里排在首位的对象,若 BlockingQueue 为空,**阻断进入等待状态直到 BlockingQueue 有新的数据被加入**
 
 - drainTo(): 一次性从 BlockingQueue 获取所有可用的数据对象（还可以指定获取数据的个数），通过该方法，可以提升获取数据效率；不需要多次分批加锁或释放锁。
 
@@ -2198,6 +2198,8 @@ jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一�
 
 ![15.png](./1 JUC基础篇.assets/15.png)
 
+
+
 ## 10.7 自定义线程池
 
 ```java
@@ -2213,6 +2215,8 @@ jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一�
                 );
     }
 ```
+
+
 
 # 11 Fork/Join 
 
@@ -2243,6 +2247,8 @@ Fork/Join 它可以将一个大的任务拆分成多个子任务进行并行处�
 **Fork/Join 框架的实现原理**
 
 ForkJoinPool 由 ForkJoinTask 数组和 ForkJoinWorkerThread 数组组成，ForkJoinTask 数组负责将存放以及将程序提交给 ForkJoinPool，而ForkJoinWorkerThread 负责执行这些任务。
+
+
 
 ## 11.2 Fork 方法
 
@@ -2281,6 +2287,8 @@ final void push(ForkJoinTask<?> task) {
     }
 }
 ```
+
+
 
 ## 11.3 join 方法
 
@@ -2461,11 +2469,15 @@ Futrue 在 Java 里面，通常用来表示一个异步任务的引用，比如�
 
 Future 的 API 没有任何的异常处理的 api，所以在异步运行时，如果出了问题是不好定位的。
 
+
+
 ## 12.3 CompletableFuture 入门
 
 ### 12.3.1 使用 CompletableFuture
 
 **场景:主线程里面创建一个 CompletableFuture，然后主线程调用 get 方法会阻塞，最后我们在一个子线程中使其终止。**
+
+
 
 ### 12.3.2 没有返回值的异步任务
 
@@ -2481,6 +2493,8 @@ public class CompletableFutureDemo {
     }
 }
 ```
+
+
 
 ### **12.3.3 **有返回值的异步任务
 
@@ -2503,13 +2517,6 @@ public class CompletableFutureDemo {
     }
 }
 ```
-
-
-
-
-
-
-
 
 
 
