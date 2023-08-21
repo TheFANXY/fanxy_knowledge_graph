@@ -75,9 +75,9 @@ class Solution {
         while (pre.next != null && pre.next.next != null) {
             ListNode cur = pre.next;
             ListNode sentinel = cur.next;   
-            pre.next = sentinel;
             cur.next = sentinel.next;
             sentinel.next = cur;
+            pre.next = sentinel;
             pre = cur;
         }
 

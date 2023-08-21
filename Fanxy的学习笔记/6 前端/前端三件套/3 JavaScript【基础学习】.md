@@ -493,7 +493,7 @@ p.print_class_name();  // 会报错
 
 **静态变量**
 
-**在ES6中，只能通过`class.propname`定义和访问。例如：【目前还不能通过 `static` 关键字来绑定】**
+**在ES6中，只能通过`class.propname`定义和访问。【目前可以通过 `static` 关键字来绑定】**
 
 ```js
 class Point {
@@ -553,6 +553,8 @@ console.log(Point.cnt);
   - **event**常用属性同上
 
 **keydown、keyup、keypress 的关系类似于鼠标的mousedown、mouseup、click**
+
+
 
 这里首先必须是一个可以聚焦的组件，这里**其实可以通过给组件加 `tabindex=xxxx` 使得组件可以聚焦。**
 
@@ -760,9 +762,9 @@ JSON对象用于序列化对象、数组、数值、字符串、布尔值和null
 
 ### 11.8. window
 
-- **window.open("https://www.bilibili.com")**在新标签栏中打开页面。
-- **location.reload()**刷新页面。
-- **location.href = "https://www.bilibili.com"**：在当前标签栏中打开页面。
+- **window.open("https://www.bilibili.com") **                     在新标签栏中打开页面。
+- **location.reload()**                                                                     刷新页面。
+- **location.href = "https://www.bilibili.com"**：                 在当前标签栏中打开页面。
 
 
 
