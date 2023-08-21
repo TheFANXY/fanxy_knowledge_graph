@@ -1080,33 +1080,297 @@ class Box extends Component {
 - **导航栏组件**
 - **Boxes组件**
 
+```sh
+             APP
+              |
+          ---------
+          |		  |
+       Navbar    Boxes
+       			  |
+       		----------------
+            |    |    |    |
+            Box  Box  Box  Box
+```
+
 **注意：**
 
-**要将多个组件共用的数据存放到最近公共祖先的this.state中。**
+**要将多个组件共用的数据存放到最近公共祖先的this.state中。这里 container 是 bootstrap 里面一个自适应长宽高的区域，还能让里面的元素尽量居中**
+
+```jsx
+class App extends Component {
+
+    render() {
+        return (
+            <React.Fragment>
+                <Navbar/>
+                <div className="container">
+                    <Boxes/>
+                </div>
+            </React.Fragment>
+        )
+    }
+}
+
+export default App;
+```
+
+Navbar
+
+```jsx
+class Navbar extends Component {
+
+    render() {
+        return (<React.Fragment>
+            <nav class="navbar bg-body-tertiary">
+                <div class="container-fluid">
+                    <span class="navbar-brand mb-0 h1">Navbar</span>
+                </div>
+            </nav>
+        </React.Fragment>)
+    }
+}
+```
 
 
 
+<font color='red'>**如果我们想给 `Navbar` 传递 `Boxes` 的信息，显然他们两个是兄弟节点，无法直接传递【后面会学更好的方法】，`React` 基本方法就只能把属性给更上层 `App` 的 `state`，然后删除 `Boxes` 的 `state`，然后把这些属性通过从上到下传递，赋值给 `Boxes`**</font>
 
+**App**
 
+```jsx
+class App extends Component {
 
+    state = {
+        boxes: [
+            {id: 1, x: 1},
+            {id: 2, x: 3},
+            {id: 3, x: 5},
+            {id: 4, x: 8},
+        ]
+    }
+    
+    handleClickLeft = (box) => {
+        const boxes = [...this.state.boxes];
+        const k = boxes.indexOf(box);
+        boxes[k] = {...boxes[k]};
+        boxes[k].x--;
+        this.setState({boxes});
+    }
+    
+    handleClickRight = (box) => {
+        const boxes = [...this.state.boxes];
+        const k = boxes.indexOf(box);
+        boxes[k] = {...boxes[k]};
+        boxes[k].x++;
+        this.setState({boxes});
+    }
 
+    handleDelete = (box) => {
+        const boxes = this.state.boxes.filter(
+            b => box !== b
+        );
+        this.setState({boxes});
+    }
 
+    handleReset = () => {
+        const boxes = this.state.boxes.map((box) => {
+            box.x = 0;
+            return box;
+        });
+        this.setState({boxes});
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <Navbar/>
+                <div className="container">
+                    <Boxes
+                        boxes={this.state.boxes}
+                        onDelete={this.handleDelete}
+                        onClickLeft={this.handleClickLeft}
+                        onClickRight={this.handleClickRight}
+                        onReset={this.handleReset}
+                    />
+                </div>
+            </React.Fragment>
+        )
+    }
+}
+```
+
+**Boxes**
+
+```jsx
+class Boxes extends Component {
+
+    render() {
+        return (
+
+            <React.Fragment>
+                <button onClick={this.props.onReset} className="btn btn-warning m-2">RESET</button>
+                {
+                    this.props.boxes.map(box => (
+                        <Box
+                            key={box.id}
+                            onDelete={this.props.onDelete}
+                            onClickLeft={this.props.onClickLeft}
+                            onClickRight={this.props.onClickRight}
+                            box={box}
+                        >
+                        </Box>))
+                }
+            </React.Fragment>
+        );
+    }
+}
+```
+
+**Navbar**
+
+此时我们设置可以从 `App` 获取 `Boxes` 的信息，这里直接把 `boxes` 数组传递过去。
+
+```jsx
+    render() {
+        return (
+            <React.Fragment>
+                <Navbar
+                    boxes = {this.state.boxes}
+                />
+                <div className="container">
+                    <Boxes
+                        boxes={this.state.boxes}
+                        onDelete={this.handleDelete}
+                        onClickLeft={this.handleClickLeft}
+                        onClickRight={this.handleClickRight}
+                        onReset={this.handleReset}
+                    />
+                </div>
+            </React.Fragment>
+        )
+    }
+```
+
+```jsx
+class Navbar extends Component {
+
+    render() {
+        return (<React.Fragment>
+            <nav className="navbar bg-body-tertiary">
+                <div className="container-fluid">
+                    <span className="navbar-brand mb-0 h1">Navbar<span> Box Count : {this.props.boxes.length}</span></span>
+                </div>
+            </nav>
+        </React.Fragment>)
+    }
+}
+```
+
+<img src="./1 React基础.assets/8.png" alt="8.png" style="zoom:50%;" />
 
 
 
 ## 4.7. 无状态函数组件
 
-当组件中没有用到this.state时，可以简写为无状态的函数组件。
+**当组件中没有用到this.state时，可以简写为无状态的函数组件。**
 
-函数的传入参数为props对象
+**函数的传入参数为props对象**
+
+**这种时候可以删除 render 函数，然后渲染部分全都写到函数里面。**
+
+
+
+**NavBar**
+
+```jsx
+import React, {Component} from "react";
+
+const Navbar = (props) => {
+    return (
+        <nav className="navbar bg-body-tertiary">
+            <div className="container-fluid">
+                <span className="navbar-brand mb-0 h1">Navbar<span> Box Count : {props.boxes.length}</span></span>
+            </div>
+        </nav>
+    )
+};
+
+export default Navbar;
+```
+
+**Boxes**
+
+```jsx
+import React, {Component} from "react";
+import Box from "./box";
+
+const Boxes = (props) => {
+    return (
+
+        <React.Fragment>
+            <button onClick={props.onReset} className="btn btn-warning m-2">RESET</button>
+            {
+                props.boxes.map(box => (
+                    <Box
+                        key={box.id}
+                        onDelete={props.onDelete}
+                        onClickLeft={props.onClickLeft}
+                        onClickRight={props.onClickRight}
+                        box={box}
+                    >
+                    </Box>))
+            }
+        </React.Fragment>
+    );
+}
+export default Boxes;
+```
+
+<font color='red'>**这里其实每个参数都这么写，都需要带 `props.xxxxx` ，其实对象的解构不只是只能在赋值的情况下进行，这种参数也可以，类似 Spring 框架，从参数获取同名容器的对象，但是这里原理大不同，不能完全当成依赖注入。<font color='blue'>记得解构需要用大括号包裹。</font>**</font>
+
+```jsx
+const Boxes = ({boxes, onReset, onDelete, onClickLeft, onClickRight}) => {
+    return (
+
+        <React.Fragment>
+            <button onClick={onReset} className="btn btn-warning m-2">RESET</button>
+            {
+                boxes.map(box => (
+                    <Box
+                        key={box.id}
+                        onDelete={onDelete}
+                        onClickLeft={onClickLeft}
+                        onClickRight={onClickRight}
+                        box={box}
+                    >
+                    </Box>))
+            }
+        </React.Fragment>
+    );
+}
+```
 
 
 
 ## 4.8. 组件的生命周期
 
-- Mount周期，执行顺序：constructor() -> render() -> componentDidMount()
-- Update周期，执行顺序：render() -> componentDidUpdate()
-- Unmount周期，执行顺序：componentWillUnmount()
+- **Mount周期，执行顺序：constructor() -> render() -> componentDidMount()**
+- **Update周期，执行顺序：render() -> componentDidUpdate()**
+- **Unmount周期，执行顺序：componentWillUnmount()**
+
+**我们想进行对组件生命周期的改动，可以显式的在组件类声明这几个函数，然后进行函数的改写，就可以干预组件的生命周期。**
+
+
+
+componentDidUpdate 其实可以传递两个参数
+
+```jsx
+componentDidUpdate(prevProps, prevState)
+```
+
+一个是之前的 `props`，一个是之前的 `state`。
+
+**比如发现数据变更，就通过 `ajax` 异步更新数据库的值。**
 
 
 
@@ -1138,63 +1402,285 @@ npm i react-router-dom
 
 ### 5.3. Route组件介绍
 
-- BrowserRouter：所有需要路由的组件，都要包裹在BrowserRouter组件内
+**概述**
 
+- BrowserRouter：所有需要路由的组件，都要包裹在BrowserRouter组件内
+- Routes：类似于C++中的switch，匹配第一个路径
+- Route：路由，path属性表示路径，element属性表示路由到的内容
 - Link：跳转到某个链接，to属性表示跳转到的链接
 
-- Routes：类似于C++中的switch，匹配第一个路径
-
-- Route：路由，path属性表示路径，element属性表示路由到的内容
 
 
+#### 1. **BrowserRouter：所有需要路由的组件，都要包裹在BrowserRouter组件内**
 
-### 5.4. URL中传递参数
+<font color='red'>**index.js**</font>
 
-解析URL：
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from "./components/App";
+import 'bootstrap/dist/css/bootstrap.css';
+import {BrowserRouter} from "react-router-dom";
 
-```js
-<Route path="/linux/:chapter_id/:section_id/" element={<Linux />} />
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <BrowserRouter>
+        <App/>
+    </BrowserRouter>
+);
 ```
 
-获取参数，类组件写法：
+这里实现一个简单的多页面通过导航栏跳转，四个页面
+
+| 页面   | 地址    |
+| ------ | ------- |
+| Home   | /       |
+| Linux  | /linux  |
+| Java   | /java   |
+| Python | /python |
+
+![9.png](./1 React基础.assets/9.png)
+
+```jsx
+class NavBar extends Component {
+
+    state = {}
+
+    render() {
+        return (
+            <nav className="navbar navbar-expand-lg bg-body-tertiary">
+                <div className="container-fluid">
+                    <a className="navbar-brand" href="/">Navbar</a>
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav">
+                            <li className="nav-item">
+                                <a className="nav-link active" aria-current="page" href="/">Home</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" href="/linux">Linux</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" href="/java">Java</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" href="/python">Python</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        )
+    }
+}
+```
+
+先改写 `href` ，现在虽然能通过点击进行地址栏变化，但是通过 `f12` 观看后台的 `network` ，可以发现还是会全部重新加载。
+
+然后我们给对应的四个页面写组件，完成之后要跳转路由更新的组件。
+
+
+
+#### 2. Routes：类似于C++中的switch，匹配第一个路径
+
+#### 3. Route：路由，path属性表示路径，element属性表示路由到的内容
+
+如果都没匹配到，就什么都不渲染。
+
+现在其实本质还是后端渲染，还需要全部渲染。
+
+```jsx
+class App extends Component {
+
+    state = {}
+
+    render() {
+        return (
+            <React.Fragment>
+                <Navbar/>
+                <Routes>
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/linux" element={<Linux/>}/>
+                    <Route path="/java" element={<Java/>}/>
+                    <Route path="/python" element={<Python/>}/>
+                </Routes>
+            </React.Fragment>
+        )
+    }
+}
+```
+
+<img src="./1 React基础.assets/11.png" alt="11.png" style="zoom: 67%;" />
+
+#### 4. Link：跳转到某个链接，to属性表示跳转到的链接
+
+这个才是真正的前端渲染，不会真的让浏览器发送地址栏的请求给后端。现在我们把导航栏的超链接全换成 `Link` 标签，完成真正的前端页面。
+
+```jsx
+class NavBar extends Component {
+
+    state = {}
+
+    render() {
+        return (
+            <nav className="navbar navbar-expand-lg bg-body-tertiary">
+                <div className="container-fluid">
+                    <Link  className={"navbar-brand"} to={"/"}>Navbar</Link>
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav">
+                            <li className="nav-item">
+                                <Link className={"nav-link active"} aria-current={"page"} to={"/"}>Home</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className={"nav-link"} to={"/linux"}>Linux</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/java">Java</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/python">Python</Link>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        )
+    }
+}
+```
+
+
+
+### 5.4. URL中传递参数【Restful类型】
+
+**解析URL：【在最外层的App处增加一个 `/java/content/:chapter/:title` 的路由，相当于 `RestFul` 的资源获取，此时我们输入对应的 `url` 可以路由到对应的 `<JavaContent/>` 组件】** 
 
 ```js
-import React, { Component } from 'react';
-import { useParams } from 'react-router-dom';
+class App extends Component {
 
-class Linux extends Component {
-    state = {  } 
+    state = {}
+
     render() {
-        console.log(this.props.params);
-        return <h1>Linux</h1>;
+        return (
+            <React.Fragment>
+                <Navbar/>
+                <div className="container">
+                <Routes>
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/linux" element={<Linux/>}/>
+                    <Route path="/java" element={<Java/>}/>
+                    <Route path="/python" element={<Python/>}/>
+                        
+                    <Route path="/java/content/:chapter/:title" element={<JavaContent/>}/>
+                        
+                </Routes>
+                </div>
+            </React.Fragment>
+        )
+    }
+}
+```
+
+**然后我们创建对应的组件类**
+
+**<font color='red'>获取参数，类组件写法：【类似将类封装到了箭头函数里面，然后借助 `props` 和 `useParams()` 方法把获取的浏览器 `url` 的 `restful参数` 进行展开，把展开的一个个参数绑定到 `this.props.params` 里面】</font>**
+
+```js
+import React, {Component} from "react";
+import {useParams} from "react-router-dom";
+
+class JavaContent extends Component {
+
+    render() {
+        return (
+            <React.Fragment>
+                <h1>JavaContent : {this.props.params.chapter}</h1>
+                <h2>Title : {this.props.params.title}</h2>
+                <h3>内容.............</h3>
+            </React.Fragment>
+        )
     }
 }
 
-export default (props) => (
-    <Linux
-        {...props}
-        params={useParams()}
-    />
-)
+export default (props) => (<JavaContent {...props} params={useParams()}/>);
 ```
 
-函数组件写法：
+**函数组件写法：**
 
 ```js
-import React, { Component } from 'react';
-import { useParams } from 'react-router-dom';
+import React, {Component} from "react";
+import {useParams} from "react-router-dom";
 
-const Linux = () => {
-    console.log(useParams());
-    return (<h1>Linux</h1>);
-}
 
-export default Linux;
+const JavaContent = (props) => {
+    return (
+        <React.Fragment>
+            <h1>JavaContent : {useParams().chapter}</h1>
+            <h2>Title : {useParams().title}</h2>
+            <h3>内容.............</h3>
+        </React.Fragment>
+    )
+};
+
+export default JavaContent;
 ```
+
+<font color='red'>**在 JAVA组件，设置一个列表，并设置跳转点**</font>
+
+```jsx
+class Java extends Component {
+
+    state = {
+        contents: [
+            {id: 1, title: "HTML"},
+            {id: 2, title: "CSS"},
+            {id: 3, title: "JAVASCRIPT"},
+            {id: 4, title: "JAVA"},
+            {id: 5, title: "PYTHON"},
+        ],
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <h1>Java</h1>
+                <hr/>
+                <div>
+                    {this.state.contents.map(content => {
+                        return <div key={content.id}>
+                            <Link to={`/java/content/${content.id}/${content.title}`}>{content.id + " : " + content.title}</Link>
+                        </div>
+                    })}
+                </div>
+            </React.Fragment>
+        )
+    }
+}
+```
+
+**可以看到跳转点的链接列表**
+
+<img src="./1 React基础.assets/12.png" alt="12.png" style="zoom: 67%;" />
+
+**点击之后，可以走前端的路由进行跳转**
+
+<img src="./1 React基础.assets/13.png" alt="13.png" style="zoom:67%;" />
 
 
 
 ### 5.5. Search Params传递参数
+
+路由加一个
+
+```jsx 
+<Route path="/Django/content" element={<JavaContent/>}/>
+```
 
 类组件写法：
 
@@ -1248,25 +1734,50 @@ export default Django;
 
 ### 5.6. 重定向
 
-使用Navigate组件可以重定向。
+<font color='red'>**使用 `Navigate` 组件可以重定向。**</font>
+
+<font color='red'>**先设置好 `404` 的组件位置，然后我们在路由的末尾【类似 `Nginx` 依次匹配到末尾，而 * 一定能匹配任何地址】加上重定向的路由，重定向到 `404` 的组件即可**</font>
 
 ```js
-<Route path="*" element={ <Navigate replace to="/404" /> } />
+<Route path="/404" element={<NotFound/>}/>
+<Route path="*" element={<Navigate replace to="/404"/>}/>
 ```
 
 
 
 ### 5.7. 嵌套路由
 
+**<font color='red'>注意这里不能给子路由的地址前面加斜杠，底层会自动拼接</font>**
+
 ```js
-<Route path="/web" element={<Web />}>
-    <Route index path="a" element={<h1>a</h1>} />
-    <Route index path="b" element={<h1>b</h1>} />
-    <Route index path="c" element={<h1>c</h1>} />
+<Route path="/python" element={<Python/>}>
+    <Route path="homework" element={<h4>homework的内容</h4>}/>
+    <Route path="answer" element={<h4>answer的内容</h4>}/>
+    <Route path="java" element={<JavaContent/>}/>
 </Route>
 ```
 
-注意：需要在父组件中添加`<Outlet />`组件，用来填充子组件的内容。
+<font color='red'>**注意：需要在父组件中添加`<Outlet />`组件，用来填充子组件的内容。不然的话，就不会渲染嵌套路由里的组件。这里和上面的从上到下传递 `child` 是不太相同的**</font>
+
+```jsx
+class Python extends Component {
+
+    state = {}
+
+    render() {
+        return (
+
+            <React.Fragment>
+                <h1>Python</h1>
+                <hr/>
+                <Outlet/>
+            </React.Fragment>
+        )
+    }
+}
+```
+
+
 
 
 
