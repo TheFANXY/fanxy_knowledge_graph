@@ -524,6 +524,8 @@ redis-cli --cluster check localhost:6381
 
 **4：每条指令都会创建一个新的镜像层并对镜像进行提交**
 
+
+
 ### 2.2.2. Docker执行Dockerfile的大致流程
 
 **（1）docker从基础镜像运行一个容器**
@@ -536,6 +538,8 @@ redis-cli --cluster check localhost:6381
 
 **（5）执行dockerfile中的下一条指令直到所有指令都执行完成**
 
+
+
 ### 2.2.3. 小总结
 
 ![34.png](./Docker高级篇.assets/34.png)
@@ -546,17 +550,25 @@ redis-cli --cluster check localhost:6381
 
 **3 Docker容器，容器是直接提供服务的**
 
+
+
 ## 2.3. DockerFile常用保留字指令
 
 参考tomcat8的dockerfile入门 ： https://github.com/docker-library/tomcat
+
+
 
 ### 2.3.1. FROM
 
 **基础镜像，当前新镜像是基于哪个镜像的，指定一个已经存在的镜像作为模板，第一条必须是from**
 
+
+
 ### 2.3.2. MAINTAINER
 
 **镜像维护者的姓名和邮箱地址**
+
+
 
 ### 2.3.3. RUN
 
@@ -576,17 +588,25 @@ RUN yum -y install vim
 
 ![36.png](./Docker高级篇.assets/36.png)
 
+
+
 ### 2.3.4. EXPOSE
 
 **当前容器对外暴露出的端口**
+
+
 
 ### 2.3.5. WORKDIR
 
 **指定在创建容器后，终端默认登陆的进来工作目录，一个落脚点**
 
+
+
 ### 2.3.6. USER
 
 **指定该镜像以什么样的用户去执行，如果都不指定，默认是root**
+
+
 
 ### 2.3.7. ENV
 
@@ -605,9 +625,13 @@ ENV MY_PATH /usr/mytest
 WORKDIR $MY_PATH
 ```
 
+
+
 ### 2.3.8. ADD
 
 **将宿主机目录下的文件拷贝进镜像且会自动处理URL和解压tar压缩包**
+
+
 
 ### 2.3.9. COPY
 
@@ -630,9 +654,13 @@ COPY ["src", "dest"]
 <dest目标路径>：容器内的指定路径，该路径不用事先建好，路径不存在的话，会自动创建。
 ```
 
+
+
 ### 2.3.10. VOLUME
 
 **容器数据卷，用于数据保存和持久化工作**
+
+
 
 ### 2.3.11. CMD
 
@@ -656,6 +684,8 @@ COPY ["src", "dest"]
 
 **<font color='bb000'>RUN是在 docker build时运行。</font>**
 
+
+
 ### 2.3.12. ENTRYPOINT
 
 **也是用来指定一个容器启动时要运行的命令**
@@ -674,9 +704,13 @@ COPY ["src", "dest"]
 
 **<font color='bb000'>如果 Dockerfile 中如果存在多个 ENTRYPOINT 指令，仅最后一个生效。</font>**
 
+
+
 ### 2.3.13. 小总结
 
 <img src="./Docker高级篇.assets/33.png" alt="33.png" style="zoom:67%;" />
+
+
 
 ## 2.4. 案例
 
@@ -749,6 +783,8 @@ docker run -it centosjava8:1.0 /bin/bash
 
 ![43.png](./Docker高级篇.assets/43.png)
 
+
+
 ### 2.4.2. 虚悬镜像
 
 #### 1. 是什么
@@ -790,6 +826,8 @@ docker image prune
 
 <img src="./Docker高级篇.assets/46.png" alt="46.png" style="zoom:67%;" />
 
+
+
 ### 2.4.3. 家庭作业-自定义镜像myubuntu
 
 #### 1. 编写
@@ -826,6 +864,8 @@ CMD /bin/bash
 ## 2.5. 小总结
 
 <img src="./Docker高级篇.assets/33.png" alt="33.png" style="zoom:50%;" />
+
+
 
 # 第三章 Docker微服务实战
 
@@ -885,6 +925,8 @@ curl 127.0.0.1:6001/order/index
 **访问测试**
 
 ![48.png](./Docker高级篇.assets/48.png)
+
+
 
 # 第四章 Docker网络
 
@@ -1841,6 +1883,8 @@ EXPOSE 6001
 docker build -t fanxy_docker:1.0 .
 ```
 
+
+
 ### 5.7.2. 不用Compose
 
 **新建mysql容器实例，这里我用的之前配的主从复制，而且读配置文件，按理说如果没删配置文件，应该是默认配置好了主从复制，直接启动run出容器即可完成，密码也是之前改好的密码**
@@ -1890,11 +1934,15 @@ docker run -d --name myservice -p 6001:6001 fanxy_docker:1.0
 
 **上面三个容器实例依次顺序启动成功**
 
+
+
 ### 5.7.3. swagger测试 
 
 ```sh
 http://localhost:你的微服务端口/swagger-ui.html#/
 ```
+
+
 
 ### 5.7.4. 上面成功了，有哪些问题?
 
@@ -1905,6 +1953,8 @@ http://localhost:你的微服务端口/swagger-ui.html#/
 **容器间的启停或宕机，有可能导致IP地址对应的容器实例变化，映射出错**
 
 **要么生产IP写死(可以但是不推荐)，要么通过服务调用**
+
+
 
 ### 5.7.5. 使用Compose
 
