@@ -1,4 +1,4 @@
-# <font color="bb000">组合总和【leetcode39 dfs求合法方案】</font>
+# <font color="bb000">组合总和【leetcode39 dfs完全背包】</font>
 
 ## **`下面的链接是——————我做的所有的题解`**
 
