@@ -1163,7 +1163,7 @@ public void test12(){
 
   ```java
   @Configuration
-  @MapperScan("com.atguigu.mybatisplus.mapper")
+  @MapperScan("com.fanxy.mybatisplus.mapper")
   public class MyBatisPlusConfig {
       @Bean
       public MybatisPlusInterceptor mybatisPlusInterceptor(){
