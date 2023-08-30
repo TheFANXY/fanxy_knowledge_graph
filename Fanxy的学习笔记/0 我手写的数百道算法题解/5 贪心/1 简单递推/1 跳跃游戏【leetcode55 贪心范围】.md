@@ -76,15 +76,16 @@ class Solution {
 
 进一步突然想到，`dp`需要枚举每个点，一步步更新，但是显然，这道题很早的时候就能决定最远可达范围，没必要继续动态规划下去，最后想到，可以利用贪心，只在最远可达点内循环，如果能到达更远的点，就更新最远可达范围，一旦可以跳出循环，就return。
 
+> 为什么选择最开始让目前的能跳的左边界设置为 0，是为了让数组长度为0，即开局就在终点的情况也纳入双指针判断中。
+
 ```java
 class Solution {
     public boolean canJump(int[] nums) {
-        if (nums == null || nums.length == 1) return true;
-        int ans = nums[0];
-        
-        for(int i = 0; i <= ans; i ++) {
-            if (ans >= nums.length - 1) return true;
-            ans = Math.max(ans, i + nums[i]);
+        int n = nums.length, dist = 0;
+
+        for (int i = 0; i <= dist; i ++) {
+            dist = Math.max(dist, i + nums[i]);
+            if (dist >= n - 1) return true;
         }
         return false;
     }
