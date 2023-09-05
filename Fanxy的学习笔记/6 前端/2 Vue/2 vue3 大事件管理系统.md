@@ -1840,7 +1840,7 @@ button.el-button:focus{
 
 ## 1. 文章列表渲染
 
-### 基本架子搭建
+### 1.1. 基本架子搭建
 
 ![image-20230903234254527](./vue3 大事件管理系统.assets/10.png)
 
@@ -1937,7 +1937,7 @@ const onDeleteArticle = (row) => {
 
 
 
-### 中英国际化处理
+### 1.2. 中英国际化处理
 
 默认是英文的，由于这里不涉及切换， 所以在 `App.vue` 中直接导入设置成中文即可
 
@@ -1958,7 +1958,7 @@ import zh from 'element-plus/es/locale/lang/zh-cn.mjs'
 
 
 
-### 文章分类选择
+### 1.3. 文章分类选择
 
 为了便于维护，直接拆分成一个小组件 `ChannelSelect.vue`
 
@@ -2043,7 +2043,7 @@ const params = ref({
 
 
 
-### 封装 API 接口，请求渲染
+### 1.4. 封装 API 接口，请求渲染
 
 **没有数据，可以登录已完成的系统，添加几条数据**
 
@@ -2092,7 +2092,7 @@ import { formatTime } from '@/utils/format'
 
 
 
-### 分页渲染 [element-plus 分页]
+### 1.4. 分页渲染 [element-plus 分页]
 
 1. 分页组件
 
@@ -2126,7 +2126,7 @@ const onCurrentChange = (page) => {
 
 
 
-### 添加 loading 处理
+### 1.5. 添加 loading 处理
 
 1. 准备数据
 
@@ -2155,7 +2155,7 @@ getArticleList()
 
 
 
-### 搜索 和 重置功能
+### 1.6. 搜索 和 重置功能
 
 1. 注册事件
 
@@ -2188,7 +2188,7 @@ const onReset = () => {
 
 ## 2. 文章发布&修改 [element-plus - 抽屉]
 
-### 3. 点击显示抽屉 
+### 2.1. 点击显示抽屉 
 
 1. 准备数据
 
@@ -2223,7 +2223,7 @@ const onAddArticle = () => {
 
 
 
-### 4. 封装抽屉组件 ArticleEdit
+### 2.2. 封装抽屉组件 `ArticleEdit`
 
 添加 和 编辑，可以共用一个抽屉，所以可以将抽屉封装成一个组件
 
@@ -2282,7 +2282,7 @@ const onEditArticle = (row) => {
 
 
 
-### 5. 完善抽屉表单结构
+### 2.3. 完善抽屉表单结构
 
 1. 准备数据
 
@@ -2366,6 +2366,8 @@ const open = async (row) => {
 
 4. 扩展 下拉菜单 width props
 
+这里其实组件可以直接定义自己的 `style="width: 100%"`
+
 ```jsx
 defineProps({
   modelValue: {
@@ -2384,11 +2386,7 @@ defineProps({
 
 
 
-
-
-
-
-### 6. 上传文件 [element-plus - 文件预览]
+### 2.4. 上传文件 [element-plus - 文件预览]
 
 1. 关闭自动上传，准备结构
 
@@ -2452,7 +2450,7 @@ const onUploadFile = (uploadFile) => {
 
 
 
-### 7. 富文本编辑器 [ vue-quill ]
+### 2.5. 富文本编辑器 [ `vue-quill` ]
 
 官网地址：https://vueup.github.io/vue-quill/
 
@@ -2495,7 +2493,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 
 
-### 8. 添加文章功能
+### 2.6. 添加文章功能
 
 1. 封装添加接口
 
@@ -2554,7 +2552,7 @@ const onSuccess = (type) => {
 
 
 
-### 9. 添加完成后的内容重置
+### 2.7. 添加完成后的内容重置
 
 ```jsx
 const formRef = ref()
@@ -2575,7 +2573,7 @@ const open = async (row) => {
 
 
 
-### 10. 编辑文章回显
+### 2.8. 编辑文章回显
 
 如果是编辑操作，一打开抽屉，就需要发送请求，获取数据进行回显
 
@@ -2634,7 +2632,7 @@ async function imageUrlToFile(url, fileName) {
 
 
 
-### 11. 编辑文章功能
+### 2.9. 编辑文章功能
 
 1. 封装编辑接口
 
