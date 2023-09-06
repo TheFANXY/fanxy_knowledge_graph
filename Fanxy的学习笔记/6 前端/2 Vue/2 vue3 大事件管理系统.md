@@ -2395,14 +2395,16 @@ import { Plus } from '@element-plus/icons-vue'
 
 <el-upload
   class="avatar-uploader"
-  :auto-upload="false"
-  :show-file-list="false"
-  :on-change="onUploadFile"
+  :auto-upload="false"     // 关闭自动上传
+  :show-file-list="false"  // 展示文件列表 用于多文件上传
+  :on-change="onUploadFile" // 绑定事件 这里绑定 change 可以展示本地的图片
 >
   <img v-if="imgUrl" :src="imgUrl" class="avatar" />
   <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
 </el-upload>
 ```
+
+
 
 2. 准备数据 和 选择图片的处理逻辑
 
@@ -2413,6 +2415,12 @@ const onUploadFile = (uploadFile) => {
   formModel.value.cover_img = uploadFile.raw
 }
 ```
+
+`URL.createObjectURL(uploadFile.raw)` 可以基于本地地址的文件，创建预览，而不需要上传，`element-plus` 的文件上传默认是一旦上传就开一个单独的请求，直接进行上传到 `oss` 服务器，然后 `oss` 服务器返回一个地址到后端数据库，通过这个地址能访问到这个图片，放回前端的表单，这样图片的渲染就可以基于这个地址了。但是如果用户没有最终点确认表单，这个文件就白上传了，导致白白浪费空间，所以我们这里把自动上传关了，换成了普通的上传。
+
+这里其实可以配 `:before-upload=""` ，绑定上传前的方法，如文件大小限制。
+
+
 
 3. 样式美化
 
@@ -2448,8 +2456,6 @@ const onUploadFile = (uploadFile) => {
 
 
 
-
-
 ### 2.5. 富文本编辑器 [ `vue-quill` ]
 
 官网地址：https://vueup.github.io/vue-quill/
@@ -2458,6 +2464,10 @@ const onUploadFile = (uploadFile) => {
 
 ```js
 pnpm add @vueup/vue-quill@latest
+# OR
+npm install @vueup/vue-quill@latest --save
+# OR
+yarn add @vueup/vue-quill@latest
 ```
 
 2. 注册成局部组件
@@ -2554,6 +2564,10 @@ const onSuccess = (type) => {
 
 ### 2.7. 添加完成后的内容重置
 
+因为把重置操作放到了open方法，第一次加载的时候把open给共享出去了，但是这个时候还没有渲染组件
+
+可以使用 `await nextTick()` 保证渲染之后再进行暴露
+
 ```jsx
 const formRef = ref()
 const editorRef = ref()
@@ -2564,12 +2578,12 @@ const open = async (row) => {
   } else {
     formModel.value = { ...defaultForm }
     imgUrl.value = ''
+    // 文本框清空 为了防止第一次暴露的时候还未挂载 需要进行等待回显  
     editorRef.value.setHTML('')
+    await nextTick()
   }
 }
 ```
-
-
 
 
 
@@ -2604,7 +2618,9 @@ const open = async (row) => {
 }
 ```
 
-chatGPT prompt：封装一个函数，基于 axios， 网络图片地址，转 file 对象， 请注意：写中文注释
+`chatGPT prompt`：封装一个函数，基于 `axios`， 网络图片地址，转 `file` 对象， 请注意：写中文注释
+
+这里是因为
 
 ```jsx
 // 将网络图片地址转换为File对象
@@ -2627,8 +2643,6 @@ async function imageUrlToFile(url, fileName) {
   }
 }
 ```
-
-
 
 
 
@@ -2684,11 +2698,9 @@ const onDeleteArticle = async (row) => {
 
 
 
+# 6. ChatGPT & Copilot
 
-
-# ChatGPT & Copilot
-
-## AI 的认知 & 讲解内容说明
+## 1. AI 的认知 & 讲解内容说明
 
 认知同步：
 
@@ -2712,7 +2724,7 @@ const onDeleteArticle = async (row) => {
 
 
 
-## ChatGPT 的基本使用 - Prompt 优化
+## 2. ChatGPT 的基本使用 - Prompt 优化
 
 AI 互动的过程中，容易出现的问题：
 
@@ -2747,9 +2759,9 @@ AI 互动的过程中，容易出现的问题：
 
 
 
-### 案例 - 前端简历
+### 2.1. 案例 - 前端简历
 
-#### Prompt 优化前：
+#### 2.1.1. Prompt 优化前：
 
 Prompt1:  
 
@@ -2757,7 +2769,7 @@ Prompt1:
 前端简历
 ```
 
-#### Prompt 优化后：
+#### 2.1.2. Prompt 优化后：
 
 Prompt1:  
 
@@ -2786,14 +2798,14 @@ Prompt3：
 
 
 
-## 工具 Github Copilot 智能生成代码的使用
+## 3. 工具 Github Copilot 智能生成代码的使用
 
-### 安装步骤
+### 3.1. 安装步骤
 
 - 登录 github，试用 Copilot
 - 打开 vscode， 搜索并安装插件 Copilot
 
-### 使用说明
+### 3.2. 使用说明
 
 - 删除键：不接受
 - Tab键：接收
@@ -2803,9 +2815,9 @@ Prompt3：
 
 
 
-## 个人中心项目实战 - 基本资料
+## 4. 个人中心项目实战 - 基本资料
 
-### 静态结构 + 校验处理
+### 4.1. 静态结构 + 校验处理
 
 chatgpt prompt 提示词参考：
 
@@ -2883,7 +2895,7 @@ const rules = {
 </template>
 ```
 
-### 封装接口，更新个人信息
+### 4.2. 封装接口，更新个人信息
 
 1. 封装接口
 
@@ -2910,9 +2922,9 @@ const onSubmit = async () => {
 
 
 
-## 个人中心项目实战 - 更换头像
+## 5. 个人中心项目实战 - 更换头像
 
-### 静态结构
+### 5.1. 静态结构
 
 ```jsx
 <script setup>
@@ -2985,12 +2997,13 @@ const onUploadFile = (file) => {
 </style>
 ```
 
-### 选择预览图片
+### 5.2. 选择预览图片
 
 ```jsx
 const uploadRef = ref()
 const imgUrl = ref(userStore.user.user_pic)
 const onUploadFile = (file) => {
+  // 这个方式能存 base64 格式的图片
   const reader = new FileReader()
   reader.readAsDataURL(file.raw)
   reader.onload = () => {
@@ -3007,7 +3020,7 @@ const onUploadFile = (file) => {
 >
 ```
 
-### 上传头像
+### 5.3. 上传头像
 
 1. 封装接口
 
@@ -3027,7 +3040,7 @@ const onUpdateAvatar = async () => {
 
 
 
-## 个人中心项目实战 - 重置密码
+## 6. 个人中心项目实战 - 重置密码
 
 chatgpt  prompt
 
@@ -3056,7 +3069,7 @@ const pwdForm = ref({
 
 
 
-### 静态结构 + 校验处理
+### 6.1. 静态结构 + 校验处理
 
 ```jsx
 <script setup>
@@ -3149,7 +3162,7 @@ const rules = {
 
 
 
-### 封装接口，更新密码信息
+### 6.2. 封装接口，更新密码信息
 
 1. 封装接口
 
@@ -3178,12 +3191,6 @@ const onReset = () => {
   formRef.value.resetFields()
 }
 ```
-
-
-
-
-
-
 
 
 

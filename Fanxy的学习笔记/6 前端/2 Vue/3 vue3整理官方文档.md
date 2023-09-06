@@ -48,7 +48,7 @@ npm i vite-plugin-style-import@1.4.1 -D
 
 
 
-### 2. `element-ui`
+### 2. `Semantic-ui`
 
 1. 在您的 `Vue` 项目中安装Semantic UI。您可以使用 `npm` 或 `yarn` 进行安装，具体取决于您的项目配置。
 
@@ -306,6 +306,24 @@ export const useStore = defineStore(
   }
 )
 ```
+
+
+
+### 6. `WangMarkdown`
+
+1. 导包
+
+```sh
+pnpm add @wangeditor/editor-for-vue@next
+# 或者 yarn add @wangeditor/editor
+# 或者 npm install @wangeditor/editor --save
+
+pnpm add @wangeditor/editor-for-vue@next
+# 或者 yarn add @wangeditor/editor-for-vue@next
+# 或者 npm install @wangeditor/editor-for-vue@next --save
+```
+
+
 
 
 

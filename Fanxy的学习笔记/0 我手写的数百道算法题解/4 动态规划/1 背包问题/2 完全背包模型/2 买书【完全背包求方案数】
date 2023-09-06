@@ -1,0 +1,92 @@
+# 买书:完全背包求方案数（二维——》一维）
+## **`我做的所有的题解`**
+
+# [包括基础提高以及一些零散刷的各种各样的题](https://www.acwing.com/blog/content/33005/) 
+
+### 证明
+
+板子题，可以看我之前的题解。
+[完全背包问题:三种语言+原版和滚动数组优化](https://www.acwing.com/solution/content/189843/) 
+
+
+### java朴素版二维
+```java
+import java.io.*;
+
+public class Main {
+    static int n, N = 1010;
+    static int f[][] = new int[N][N];
+    static int a[] = {0, 10, 20, 50, 100};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+
+        f[0][0] = 1;
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 0; j <= n; j++) {
+                for (int k = 0; k * a[i] <= j; k++) {
+                    f[i][j] += f[i-1][j - k * a[i]];
+                }
+            }
+        }
+
+        System.out.println(f[4][n]);
+    }
+}
+```
+
+
+### java二维升级版
+```java
+import java.io.*;
+
+public class Main {
+    static int n, N = 1010;
+    static int f[][] = new int[N][N];
+    static int a[] = {0, 10, 20, 50, 100};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+
+        f[0][0] = 1;
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 0; j <= n; j++) {
+                f[i][j] = f[i - 1][j];
+                if (j >= a[i])
+                    f[i][j] += f[i][j - a[i]];
+            }
+        }
+
+        System.out.println(f[4][n]);
+    }
+}
+
+```
+
+
+### java一维优化版
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Main {
+    static int N = 1010, n;
+    static int[] a = {0, 10, 20, 50, 100};
+    static int[] f = new int[N];
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+    public static void main(String[] args) throws IOException {
+        n = Integer.parseInt(br.readLine());
+        f[0] = 1;
+        for (int i = 1; i <= 4; i++) {
+            for (int j = a[i]; j <= n; j++) {
+                f[j] += f[j - a[i]];
+            }
+        }
+        System.out.println(f[n]);
+    }
+}
+```
