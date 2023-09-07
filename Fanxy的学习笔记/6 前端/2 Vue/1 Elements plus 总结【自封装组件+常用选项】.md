@@ -39,7 +39,7 @@ onMounted(() => {
 
 ```js
     <!--表单区域和下拉框复杂搜索-->
-    <el-form inline>
+    <el-form inline>  // 单行显示
       <el-form-item label="文章分类:">
         <channel-select v-model="params.cate_id"></channel-select>
       </el-form-item>
