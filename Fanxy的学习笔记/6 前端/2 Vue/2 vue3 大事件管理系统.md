@@ -56,6 +56,8 @@ pnpm dev
 "editor.formatOnSave": false,
 ```
 
+这个 `webstorm` 是自动打开的
+
 
 
 **配置文件 .eslintrc.cjs**
@@ -109,6 +111,10 @@ husky 是一个 git hooks 工具  ( git的钩子工具，可以在特定时机�
 **husky 配置**
 
 1. git初始化 `git init`
+
+```sh
+git init
+```
 
 2. 初始化 husky 工具配置  https://typicode.github.io/husky/
 
@@ -467,6 +473,8 @@ const goList = () => {
 
 \- 优化：由 stores/index.js 统一导出，导入路径统一 `./stores`，而且仓库维护在 stores/modules 中
 
+
+
 <img src="./vue3 大事件管理系统.assets/6.png" alt="6.png" style="zoom:67%;" />
 
 ## 9. 数据交互 - 请求工具设计
@@ -487,9 +495,9 @@ const goList = () => {
 pnpm add axios
 ```
 
-2. 新建 `utils/request.js` 封装 axios 模块
+2. 新建 `utils/request.js` 封装 `axios` 模块
 
-   利用 axios.create 创建一个自定义的 axios 来使用
+   利用 `axios.create` 创建一个自定义的 `axios` 来使用
 
    http://www.axios-js.com/zh-cn/docs/#axios-create-config
 
@@ -795,6 +803,10 @@ const isRegister = ref(true)
 
 
 
+总的来说，`v-model`和`:model`在Vue.js中都用于数据绑定，但它们的用途和行为有所不同。`v-model`主要用于表单元素，实现双向数据绑定，而`:model`主要用于将父组件的数据传递给子组件，没有实现双向数据绑定。
+
+
+
 【需求】注册页面基本校验
 
 1. 用户名非空，长度校验5-10位
@@ -1034,8 +1046,8 @@ watch(isRegister, () => {
 
 【需求说明2】**登录功能**
 
-1. 封装登录API，点击按钮发送登录请求
-2. 登录成功存储token，存入pinia 和 持久化本地storage
+1. 封装登录 `API`，点击按钮发送登录请求
+2. 登录成功存储 `token`，存入 `pinia` 和 持久化本地storage
 3. 跳转到首页，给提示
 
 【测试账号】
@@ -1061,14 +1073,14 @@ const login = async () => {
 }
 ```
 
-2. 封装接口 API
+2. 封装接口 `API`
 
 ```jsx
 export const userLoginService = ({ username, password }) =>
   request.post('api/login', { username, password })
 ```
 
-3. 调用方法将 token 存入 pinia 并 自动持久化本地
+3. 调用方法将 `token` 存入 `pinia` 并 自动持久化本地
 
 ```jsx
 const userStore = useUserStore()
@@ -1281,7 +1293,7 @@ router.beforeEach((to) => {
 export const userGetInfoService = () => request.get('/my/userinfo')
 ```
 
-2. stores/modules/user.js 定义数据
+2. `stores/modules/user.js` 定义数据
 
 ```jsx
 const user = ref({})
@@ -1295,7 +1307,7 @@ const getInfo = async () => {
 }
 ```
 
-3. `layout/LayoutContainer`页面中调用
+3. `layout/LayoutContainer` 页面中调用
 
 ```js
 import { useUserStore } from '@/stores'
@@ -1353,7 +1365,7 @@ const onCommand = async (command) => {
 }
 ```
 
-3. pinia  user.js 模块 提供 setUser 方法
+3. `pinia`  `user.js` 模块 提供 `setUser` 方法
 
 ```jsx
 const setUser = (obj) => (user.value = obj)

@@ -1,10 +1,10 @@
-# 0 这部分建议结合JAVA基础的多线程一起看
-
 # 1 什么是 JUC
 
 ## 1.1 JUC 简介 
 
-在 Java 中，线程部分是一个重点，本篇文章说的 JUC 也是关于线程的。JUC 就是 java.util .concurrent 工具包的简称。这是一个处理线程的工具包，JDK 1.5 开始出现的。
+**这部分建议结合JAVA基础的多线程一起看**
+
+在 Java 中，线程部分是一个重点，本篇文章说的 JUC 也是关于线程的。JUC 就是 java.util.concurrent 工具包的简称。这是一个处理线程的工具包，JDK 1.5 开始出现的。
 
 
 
@@ -31,7 +31,7 @@
 
 ### 1.3.1 线程状态枚举类 
 
-![1](./1 JUC基础篇.assets/1.png)
+![1](./1 JUC基础篇.assets/b-1.png)
 
 Thread.State
 
@@ -68,11 +68,11 @@ Thread.State
 
 **并行（parallel）**：**指两个或多个事件在`同一时刻`发生（同时发生）。指在同一时刻，有`多条指令`在`多个CPU`上`同时`执行。**比如：多个人同时做不同的事。
 
-![2.png](./1 JUC基础篇.assets/2.png)
+![2.png](./1 JUC基础篇.assets/b-2.png)
 
  **并发（concurrency）**：**指两个或多个事件在`同一个时间段内`发生。即在一段时间内，有`多条指令`在`单个CPU`上`快速轮换、交替`执行，使得在宏观上具有多个进程同时执行的效果。**
 
-![3.png](./1 JUC基础篇.assets/3.png)
+![3.png](./1 JUC基础篇.assets/b-3.png)
 
 **在操作系统中，启动了多个程序，`并发`指的是在一段时间内宏观上有多个程序同时运行，这在单核 CPU 系统中，每一时刻只能有一个程序执行，即微观上这些程序是分时的交替运行，只不过是给人的感觉是同时运行，那是因为分时交替运行的时间是非常短的。**
 
@@ -137,7 +137,8 @@ synchronized 是 Java 中的关键字，是一种同步锁。它修饰的对象�
 
 2. 修饰一个方法，被修饰的方法称为同步方法，其作用的范围是整个方法，作用的对象是调用这个方法的对象；
 
-- 虽然可以使用 synchronized 来修饰方法，但 synchronized 并不属于方法定义的一部分，因此，synchronized 关键字不能被继承。如果在父类中的某个方法使用了 synchronized 关键字，而在子类中覆盖了这个方法，在子类中的这个方法默认情况下并不是同步的，而必须显式地在子类的这个方法中加上synchronized 关键字才可以。当然，**还可以在子类方法中调用父类中相应的方法，这样虽然子类中的方法不是同步的，但子类调用了父类的同步方法，因此，子类的方法也就相当于同步了。**
+- 虽然可以使用 synchronized 来修饰方法，但 synchronized 并不属于方法定义的一部分，因此，synchronized 关键字不能被继承。如果在父类中的某个方法使用了 synchronized 关键字，而在子类中覆盖了这个方法， **在子类中的这个方法默认情况下并不是同步的** ，而必须显式地在子类的这个方法中加上synchronized 关键字才可以。
+- **还可以在子类方法中调用父类中相应的方法，这样虽然子类中的方法不是同步的，但子类调用了父类的同步方法，因此，子类的方法也就相当于同步了。**
 
 3. 修饰一个静态的方法，其作用的范围是整个静态方法，作用的对象是这个类的所有对象；
 
@@ -210,7 +211,7 @@ public class TicketSale {
 }
 ```
 
-**这个案例是我设计的，因为sychronized关键字修饰的是非静态方法，所以监视器为对象，这里三个线程都调用同一个对象的sychronized方法，故会因为同步机制导致同一时间只有一个能执行，然后再进行睡眠 300ms，让其他线程可以竞争获取同步监视器。**
+**这个案例是我设计的，因为sychronized关键字修饰的是非静态方法，所以监视器为对象，这里三个线程都调用同一个对象的sychronized方法，故会因为同步机制导致同一时间只有一个能执行，然后再进行睡眠 300ms**
 
 **那么如果这个获取锁的线程由于要等待 IO 或者其他原因（比如调用 sleep方法）被阻塞了，但是又没有释放锁，其他线程便只能干巴巴地等待，试想一下，这多么影响程序执行效率。**
 
@@ -255,8 +256,8 @@ lock()方法是平常使用得最多的一个方法，就是用来获取锁。�
 {
     // ---------------
 	Lock lock = ...;
-    lock.lock();
     try {
+        lock.lock();
         //处理任务
     } catch(Exception ex){ 
         //处理异常
@@ -273,7 +274,7 @@ lock()方法是平常使用得最多的一个方法，就是用来获取锁。�
 
 关键字 synchronized 与 wait()/notify()这两个方法一起使用可以实现等待/通知模式， Lock 锁的 newContition()方法返回 Condition 对象，Condition 类也可以实现等待/通知模式。
 
-用 notify()通知时，JVM 会随机唤醒某个等待的线程， 使用 Condition 类可以进行选择性通知， Condition 比较常用的两个方法：
+**用 notify()通知时，JVM 会随机唤醒某个等待的线程， 使用 Condition 类可以进行选择性通知** ， Condition 比较常用的两个方法：
 
 - await()会使当前线程等待,同时会释放锁,当其他线程调用 signal()时,线程会重新获得锁并继续执行。
 
@@ -289,16 +290,16 @@ ReentrantLock，意思是“可重入锁”，关于可重入锁的概念将在�
 
 ReentrantLock 是唯一实现了 Lock 接口的类，并且 ReentrantLock 提供了更多的方法。下面通过一些实例看具体看一下如何使用。
 
-**可重入锁**指的是同一个线程可无限次地进入同一把锁的不同代码，又因该锁通过线程独占共享资源的方式确保并发安全，又称为**独占锁**。**可重入指的是已经获得该锁了，但在代码块里还能接着获得该锁，只是后面也要释放两次该锁。<font color='bb000'>下面这个例子并没有体现这一点，但zookeeper的笔记有一个帮助生成关于zookeeper锁的那里有代码，那个锁的案例是展示了多次上锁和对应次数释放锁的操作。</font>**
+**可重入锁** 指的是同一个线程可无限次地进入同一把锁的不同代码，又因该锁通过线程独占共享资源的方式确保并发安全，又称为 **独占锁**。**可重入指的是已经获得该锁了，但在代码块里还能接着获得该锁，只是后面也要释放两次该锁。<font color='bb000'>下面这个例子并没有体现这一点，但zookeeper的笔记有一个帮助生成关于zookeeper锁的那里有代码，那个锁的案例是展示了多次上锁和对应次数释放锁的操作。</font>**
 
-举个例子：同一个类中的synchronize关键字修饰了不同的方法。synchronize是内置的隐式的可重入锁，例子中的两个方法使用的是同一把锁，只要能执行testB()也就说明线程拿到了锁，所以执行testA()方法就不用被阻塞等待获取锁了；如果不是同一把锁或非可重入锁，就会在执行testA()时被阻塞等待。
+举个例子：同一个类中的 `synchronize` 关键字修饰了不同的方法。`synchronize` 是内置的隐式的可重入锁，例子中的两个方法使用的是同一把锁，只要能执行 `testB()` 也就说明线程拿到了锁，所以执行 `testA()` 方法就不用被阻塞等待获取锁了；如果不是同一把锁或非可重入锁，就会在执行`testA()` 时被阻塞等待。
 
 **上面的例子换成使用lock接口来复现。**
 
 **<font color='bb000'>补充一下，并不是调用start方法就代表线程立马被创建了，其实点击进入源码，可以看到当start执行的时候，需要先进行start0方法调用，这个方法是native方法，即是否创建由操作系统决定，而java代码层面无能为力。</font>**
 
 ```java
-class LTicket { 
+class LTicket {
     private int ticketCount = 30;
 
     // 创建可重入锁
@@ -369,15 +370,15 @@ public class LTicketSale {
 
 **<font color='000bb'>Lock 和 synchronized 有以下几点不同：</font>**
 
-1. **Lock 是一个接口，而 synchronized 是 Java 中的关键字，synchronized 是内置的语言实现；**
+1. `Lock` 是一个 **接口**，而 `synchronized` 是 `Java` 中的 **关键字**，`synchronized` 是 **内置的语言实现;**
 
-2. **synchronized 在发生异常时，会自动释放线程占有的锁，因此不会导致死锁现象发生；而 Lock 在发生异常时，如果没有主动通过 unLock()去释放锁，则很可能造成死锁现象，因此使用 Lock 时需要在 finally 块中释放锁；**
+2. `synchronized` 在发生异常时，**会自动释放线程占有的锁，因此不会导致死锁现象发生** ；**而 `Lock` 在发生异常时，如果没有主动通过 `unLock()` 去释放锁，则很可能造成死锁现象** ，因此使用 `Lock` 时需要在 `finally` 块中释放锁；
 
-3. **Lock 可以让等待锁的线程响应中断，而 synchronized 却不行，使用synchronized 时，等待的线程会一直等待下去，不能够响应中断；如果 使用ReentrantLock，如果A不释放，可以使B在等待了足够长的时间以后，中断等待，而干别的事情**
+3. **Lock 可以让等待锁的线程响应中断，而 synchronized 却不行，使用 synchronized 时，等待的线程会一直等待下去，不能够响应中断；如果 使用ReentrantLock，如果A不释放，可以使B在等待了足够长的时间以后，中断等待，而干别的事情**
 
 4. **通过 Lock 可以知道有没有成功获取锁，而 synchronized 却无法办到。**
-5. **Lock 可以提高多个线程进行读操作的效率。在性能上来说，如果竞争资源不激烈，两者的性能是差不多的，而当竞争资源非常激烈时（即有大量线程同时竞争），此时 Lock 的性能要远远优于synchronized。**
-6. **通过 lock 接口的实现类的 `ewCondition()`，可以完成精准线程的唤醒，synchronized 不可以做到，只能通过每个对象自带的 notify 和 wait 做到**
+5. **Lock 可以提高多个线程进行读操作的效率。在性能上来说，如果竞争资源不激烈，两者的性能是差不多的，而当竞争资源非常激烈时（即有大量线程同时竞争），此时 `Lock` 的性能要远远优于 `synchronized`。**
+6. **通过 lock 接口的实现类的 `newCondition()`，可以完成精准线程的唤醒，`synchronized` 不可以做到，只能通过每个对象自带的 `notify` 和 `wait` 做到**
 
 
 
@@ -387,7 +388,7 @@ public class LTicketSale {
 
 **场景---两个线程，一个线程对当前数值加 1，另一个线程对当前数值减 1,要求用线程间通信**
 
-![5.png](./1 JUC基础篇.assets/5.png)
+![5.png](./1 JUC基础篇.assets/b-5.png)
 
 **<font color='bb000'>同时这里要补充一点，我们在进入线程通信的等待唤醒的条件判断，应该使用 `while`，这样能保证不会出现虚假唤醒，因为java的唤醒机制是，从哪里睡眠，就从哪里唤醒，如果使用`if`导致出现并不应该唤醒的情况下，线程被唤醒，错误的执行了不该执行的方法。</font>**
 
@@ -672,8 +673,11 @@ public class ThreadDemo3 {
 ```
 
 **synchronized实现同步的基础:Java中的每一个对象都可以作为锁。具体表现为以下3种形式。**
+
 **对于普通同步方法，锁是当前实例对象。**
+
 **对于静态同步方法，锁是当前类的class对象。**
+
 **对于同步方法块，锁是synchonized括号里配置的对象**
 
 
@@ -689,7 +693,7 @@ public class ThreadDemo4 {
     public static void main(String[] args) {
         List<String> list = new ArrayList<>();
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 10; i++) {
             // 创建10个线程 均向集合添加内容
             for (int j = 0; j < 3; j++) {
                 new Thread(() -> {
@@ -795,16 +799,16 @@ public static <T> List<T> synchronizedList(List<T> list) {
 
 ## 4.4 CopyOnWriteArrayList(重点) 
 
-首先我们对 CopyOnWriteArrayList 进行学习,其特点如下:
+首先我们对 `CopyOnWriteArrayList` 进行学习,其特点如下:
 
-它相当于线程安全的 ArrayList。和 ArrayList 一样，它是个可变数组；但是和ArrayList 不同的时，它具有以下特性：
+它相当于线程安全的 `ArrayList`。和 `ArrayList` 一样，它是个可变数组；但是和ArrayList 不同的时，它具有以下特性：
 
-1. 它最适合于具有以下特征的应用程序：List 大小通常保持很小，只读操作远多于可变操作，需要在遍历期间防止线程间的冲突。
+1. 它最适合于具有以下特征的应用程序：`List` 大小通常保持很小，只读操作远多于可变操作，需要在遍历期间防止线程间的冲突。
 
 2. 它是线程安全的。
-3. 因为通常需要复制整个基础数组，所以可变操作（add()、set() 和 remove() 等等）的开销很大。
+3. 因为通常需要复制整个基础数组，所以可变操作（`add()`、`set()` 和 `remove()` 等等）的开销很大。
 
-4. 迭代器支持 hasNext(), next()等不可变操作，但不支持可变 remove()等操作。
+4. 迭代器支持 `hasNext()`, `next()` 等不可变操作，但不支持可变 `remove()` 等操作。
 5. 使用迭代器进行遍历的速度很快，并且不会与其他线程发生冲突。在构造迭代器时，迭代器依赖于不变的数组快照。
 
 **1. 独占锁效率低：采用读写分离思想解决**
@@ -832,11 +836,11 @@ public static <T> List<T> synchronizedList(List<T> list) {
 - **由于它在“添加/修改/删除”数据时，都会新建数组，所以涉及到修改数据的操作，CopyOnWriteArrayList 效率很低；但是单单只是进行遍历查找的话，效率比较高。**
 
 - **“线程安全”机制**
-- 通过 volatile 和互斥锁来实现的。
+- 通过 `volatile` 和互斥锁来实现的。
 
-- 通过“volatile 数组”来保存数据的。一个线程读取 volatile 数组时，总能看到其它线程对该 volatile 变量最后的写入；就这样，通过 volatile 提供了“读取到的数据总是最新的”这个机制的保证。
+- 通过“ `volatile` 数组”来保存数据的。一个线程读取 `volatile` 数组时，总能看到其它线程对该 `volatile` 变量最后的写入；就这样，通过 `volatile` 提供了“读取到的数据总是最新的”这个机制的保证。
 
-- 通过互斥锁来保护数据。在“添加/修改/删除”数据时，会先“获取互斥锁”，再修改完毕之后，先将数据更新到“volatile 数组”中，然后再“释放互斥锁”，就达到了保护数据的目的。
+- 通过互斥锁来保护数据。在“添加/修改/删除”数据时，会先“获取互斥锁”，再修改完毕之后，先将数据更新到“`volatile` 数组”中，然后再“释放互斥锁”，就达到了保护数据的目的。
 
 
 
@@ -846,17 +850,17 @@ public static <T> List<T> synchronizedList(List<T> list) {
 
 集合类型中存在线程安全与线程不安全的两种,常见例如:
 
-ArrayList ----- Vector
+`ArrayList` ----- `Vector`
 
-HashMap -----HashTable
+`HashMap`  ----- `HashTable`
 
-但是以上都是通过 synchronized 关键字实现,效率较低
+但是以上都是通过 `synchronized` 关键字实现,效率较低
 
 **2.Collections 构建的线程安全集合**
 
 **3.java.util.concurrent 并发包下**
 
-CopyOnWriteArrayList CopyOnWriteArraySet ConcurrentHashMap 类型,通过动态数组与线程安全个方面保证线程安全
+`CopyOnWriteArrayList` `CopyOnWriteArraySet` `ConcurrentHashMap` 类型,通过动态数组与线程安全个方面保证线程安全
 
 
 
@@ -925,7 +929,7 @@ class Phone {
 
 ------sendEmail
 
-**如果把睡4秒取消注释，还是这个顺序，因为我们的锁是加在非静态方法，即给对象加锁，而调用同一个对象，故当第一个线程执行senSMS，必然持有锁，第二个只能等它睡完了，才能拿到锁，执行其他的同步方法。**
+**如果把睡4秒取消注释，还是这个顺序，因为我们的锁是加在非静态方法，即给对象加锁，而调用同一个对象，故当第一个线程执行senSMS，持有的是类锁，第二个线程可以获取对象锁，执行其他的同步方法。**
 
 **3 新增普通的 hello 方法，是先打短信还是 hello**
 
@@ -973,7 +977,7 @@ class Phone {
 
 **结论 : **
 
-一个对象里面如果有多个 `synchronized` 方法，某一个时刻内，只要一个线程去调用其中的一个 `synchronized` 方法了，其它的线程都只能等待，换句话说，某一个时刻内，只能有唯一一个线程去访问这些 `synchronized` 方法锁的是当前对象 `this`，被锁定后，其它的线程都不能进入到当前对象的其它的synchronized 方法
+一个对象里面如果有多个 `synchronized` 方法，某一个时刻内，只要一个线程去调用其中的一个 `synchronized` 方法【`前提是监视器相同`】了，其它的线程都只能等待，换句话说，某一个时刻内，只能有唯一一个线程去访问这些 `synchronized` 方法锁的是当前对象 `this`，被锁定后，其它的线程都不能进入到当前对象的其它的synchronized 方法
 
 加个普通方法后发现和同步锁无关
 
@@ -999,7 +1003,7 @@ class Phone {
 
 ## 5.2 公平锁和非公平锁
 
-![6.png](./1 JUC基础篇.assets/6.png)
+![6.png](./1 JUC基础篇.assets/b-6.png)
 
 **这里以之前的卖票代码为案例，我们发现 ReentrantLock 默认构造就是非公平锁，同时有一个带布尔的有参构造是可以构建公平锁。**
 
@@ -1011,7 +1015,7 @@ class Phone {
 
 **非公平锁的话就是抢的，就不管你来的早还是晚，同时竞争，公平锁的话就是有一个队列，咱们依次按队列排。**
 
-
+`
 
 ## 5.3. 可重入锁
 
@@ -1069,7 +1073,7 @@ BB :: TestB
 
 **不同的线程分别占用对方需要的同步资源不放弃，都在等待对方放弃自己需要的同步资源，就形成了线程的死锁。 一旦出现死锁，整个程序既不会发生异常，也不会给出任何提示，只是所有线程处于阻塞状态，无法继续。**
 
-![4.png](./1 JUC基础篇.assets/4.png)
+![4.png](./1 JUC基础篇.assets/b-4.png)
 
 **诱发死锁的原因：**
 
@@ -1144,7 +1148,7 @@ public class DeadLock {
 jps -l
 ```
 
-![7.png](./1 JUC基础篇.assets/7.png)
+![7.png](./1 JUC基础篇.assets/b-7.png)
 
 **2 jstack**
 
@@ -1152,7 +1156,7 @@ jps -l
 jstack 23604
 ```
 
-![8.png](./1 JUC基础篇.assets/8.png)
+![8.png](./1 JUC基础篇.assets/b-8.png)
 
 
 
@@ -1180,19 +1184,19 @@ jstack 23604
 
 当 call（）方法完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程返回的结果。为此，可以使用 Future 对象。
 
-将 Future 视为保存结果的对象–它可能暂时不保存结果，但将来会保存（一旦Callable 返回）。Future 基本上**是主线程可以跟踪进度以及其他线程的结果的一种方式。**要实现此接口，必须重写 5 种方法，这里列出了重要的方法,如下:
+将 Future 视为保存结果的对象–它可能暂时不保存结果，但将来会保存（一旦 Callable 返回）。Future 基本上 **是主线程可以跟踪进度以及其他线程的结果的一种方式。** 要实现此接口，必须重写 5 种方法，这里列出了重要的方法,如下:
 
-- **public boolean cancel（boolean mayInterrupt）：**用于停止任务。
+- **public boolean cancel（boolean mayInterrupt）：** 用于停止任务。
 
-==如果尚未启动，它将停止任务。如果已启动，则仅在 mayInterrupt 为 true时才会中断任务。==
+==如果尚未启动，它将停止任务。如果已启动，则仅在 mayInterrupt 为 true 时才会中断任务。==
 
-- **public Object get（）throws InterruptedException，ExecutionException：**用于获取任务的结果。
+- **public Object get（）throws InterruptedException，ExecutionException：** 用于获取任务的结果。
 
 ==如果任务完成，它将立即返回结果，否则将等待任务完成，然后返回结果。==
 
-- **public boolean isDone（）：**如果任务完成，则返回 true，否则返回 false可以看到 Callable 和 Future 做两件事-Callable 与 Runnable 类似，因为它封装了要在另一个线程上运行的任务，而 Future 用于存储从另一个线程获得的结果。实际上，future 也可以与 Runnable 一起使用。
+- **public boolean isDone（）：** 如果任务完成，则返回 true，否则返回 false可以看到 Callable 和 Future 做两件事 - Callable 与 Runnable 类似，因为它封装了要在另一个线程上运行的任务，而 Future 用于存储从另一个线程获得的结果。实际上，future 也可以与 Runnable 一起使用。
 
-要创建线程，需要 Runnable。为了获得结果，需要 future。
+要创建线程，需要 `Runnable`。为了获得结果，需要 `future`。
 
 
 
@@ -1220,7 +1224,7 @@ Java 库具有具体的 FutureTask 类型，该类型实现 Runnable 和 Future�
 class Thread1 implements Runnable {
     @Override
     public void run() {
-
+		
     }
 }
 
@@ -1438,9 +1442,11 @@ public class SemaphoreDemo {
 }
 ```
 
+
+
 # 8 读写锁
 
-<img src="./1 JUC基础篇.assets/9.png" alt="9.png" style="zoom:67%;" />
+<img src="./1 JUC基础篇.assets/b-9.png" alt="9.png" style="zoom:67%;" />
 
 
 
@@ -1676,7 +1682,7 @@ Thread::2 get value : num::2
 
 - 在线程持有写锁的情况下，该线程可以继续获取读锁（获取读锁时如果发现写锁被占用，只有写锁没有被当前线程占用的情况才会获取失败）。
 
-**原因**: 当线程获取读锁的时候，可能有其他线程同时也在持有读锁，因此不能把获取读锁的线程“升级”为写锁；而对于获得写锁的线程，它一定独占了读写锁，因此可以继续让它获取读锁，当它同时获取了写锁和读锁后，还可以先释放写锁继续持有读锁，这样一个写锁就“降级”为了读锁。
+**原因** : 当线程获取读锁的时候，可能有其他线程同时也在持有读锁，因此不能把获取读锁的线程“升级”为写锁；而对于获得写锁的线程，它一定独占了读写锁，因此可以继续让它获取读锁，当它同时获取了写锁和读锁后，还可以先释放写锁继续持有读锁，这样一个写锁就“降级”为了读锁。
 
 
 
@@ -1684,11 +1690,11 @@ Thread::2 get value : num::2
 
 ## 9.1 BlockingQueue 简介 
 
-Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效安全“传输”数据的问题。通过这些高效并且线程安全的队列类，为我们快速搭建高质量的多线程程序带来极大的便利。本文详细介绍了 BlockingQueue 家庭中的所有成员，包括他们各自的功能以及常见使用场景。
+`Concurrent` 包中，`BlockingQueue` 很好的解决了多线程中，如何高效安全“传输”数据的问题。通过这些高效并且线程安全的队列类，为我们快速搭建高质量的多线程程序带来极大的便利。本文详细介绍了 `BlockingQueue` 家庭中的所有成员，包括他们各自的功能以及常见使用场景。
 
 阻塞队列，顾名思义，首先它是一个队列, 通过一个共享的队列，可以使得数据由队列的一端输入，从另外一端输出；
 
-![10.png](./1 JUC基础篇.assets/10.png)
+![10.png](./1 JUC基础篇.assets/b-10.png)
 
 当队列是空的，从队列中获取元素的操作将会被阻塞
 
@@ -1706,11 +1712,11 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件满足，被挂起的线程又会自动被唤起
 
-为什么需要 BlockingQueue
+为什么需要 `BlockingQueue`
 
-好处是我们不需要关心什么时候需要阻塞线程，什么时候需要唤醒线程，因为这一切BlockingQueue 都给你一手包办了
+好处是我们不需要关心什么时候需要阻塞线程，什么时候需要唤醒线程，因为这一切 BlockingQueue 都给你一手包办了
 
-在 concurrent 包发布以前，在多线程环境下，我们每个程序员都必须去自己控制这些细节，尤其还要兼顾效率和线程安全，而这会给我们的程序带来不小的复杂度。
+在 `concurrent` 包发布以前，在多线程环境下，我们每个程序员都必须去自己控制这些细节，尤其还要兼顾效率和线程安全，而这会给我们的程序带来不小的复杂度。
 
 多线程环境中，通过队列可以很容易实现数据共享，比如经典的“生产者”和“消费者”模型中，通过队列可以很便利地实现两者之间的数据共享。假设我们有若干生产者线程，另外又有若干个消费者线程。如果生产者线程需要把准备好的数据共享给消费者线程，利用队列的方式来传递数据，就可以很方便地解决他们之间的数据共享问题。但如果生产者和消费者在某个时间段内，万一发生数据处理速度不匹配的情况呢？理想情况下，如果生产者产出数据的速度大于消费者消费的速度，并且当生产出来的数据累积到一定程度的时候，那么生产者必须暂停等待一下（阻塞生产者线程），以便等待消费者线程把累积的数据处理完毕，反之亦然。
 
@@ -1722,7 +1728,7 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 ## 9.2 BlockingQueue 核心方法 
 
-![11.png](./1 JUC基础篇.assets/11.png)
+![11.png](./1 JUC基础篇.assets/b-11.png)
 
 **BlockingQueue 的核心方法**：
 
@@ -1758,7 +1764,9 @@ Concurrent 包中，BlockingQueue 很好的解决了多线程中，如何高效�
 
 基于数组的阻塞队列实现，在 ArrayBlockingQueue 内部，维护了一个定长数组，以便缓存队列中的数据对象，这是一个常用的阻塞队列，除了一个定长数组外，ArrayBlockingQueue 内部还保存着两个整形变量，分别标识着队列的头部和尾部在数组中的位置。
 
-ArrayBlockingQueue 在生产者放入数据和消费者获取数据，都是共用同一个锁对象，由此也意味着两者无法真正并行运行，这点尤其不同于LinkedBlockingQueue；按照实现原理来分析，ArrayBlockingQueue 完全可以采用分离锁，从而实现生产者和消费者操作的完全并行运行。Doug Lea 之所以没这样去做，也许是因为 ArrayBlockingQueue 的数据写入和获取操作已经足够轻巧，以至于引入独立的锁机制，除了给代码带来额外的复杂性外，其在性能上完全占不到任何便宜。 ArrayBlockingQueue 和 LinkedBlockingQueue 间还有一个明显的不同之处在于，前者在插入或删除元素时不会产生或销毁任何额外的对象实例，而后者则会生成一个额外的Node 对象。这在长时间内需要高效并发地处理大批量数据的系统中，其对于GC 的影响还是存在一定的区别。而在创建 ArrayBlockingQueue 时，我们还可以控制对象的内部锁是否采用公平锁，默认采用非公平锁。
+ArrayBlockingQueue **在生产者放入数据和消费者获取数据，都是共用同一个锁对象，由此也意味着两者无法真正并行运行，这点尤其不同于LinkedBlockingQueue** ；按照实现原理来分析，ArrayBlockingQueue 完全可以采用分离锁，从而实现生产者和消费者操作的完全并行运行。
+
+Doug Lea 之所以没这样去做，**也许是因为 ArrayBlockingQueue 的数据写入和获取操作已经足够轻巧，以至于引入独立的锁机制，除了给代码带来额外的复杂性外，其在性能上完全占不到任何便宜。**  **ArrayBlockingQueue 和 LinkedBlockingQueue 间还有一个明显的不同之处在于，前者在插入或删除元素时不会产生或销毁任何额外的对象实例，而后者则会生成一个额外的 Node 对象。** 这在长时间内需要高效并发地处理大批量数据的系统中，其对于 GC 的影响还是存在一定的区别。而在创建 ArrayBlockingQueue 时，我们还可以控制对象的内部锁是否采用公平锁，默认采用非公平锁。
 
 ==**一句话总结: 由数组结构组成的有界阻塞队列。**==
 
@@ -1768,11 +1776,11 @@ ArrayBlockingQueue 在生产者放入数据和消费者获取数据，都是共�
 
 基于链表的阻塞队列，同 ArrayListBlockingQueue 类似，其内部也维持着一个数据缓冲队列（该队列由一个链表构成），当生产者往队列中放入一个数据时，队列会从生产者手中获取数据，并缓存在队列内部，而生产者立即返回；只有当队列缓冲区达到最大值缓存容量时（LinkedBlockingQueue 可以通过构造函数指定该值），才会阻塞生产者队列，直到消费者从队列中消费掉一份数据，生产者线程会被唤醒，反之对于消费者这端的处理也基于同样的原理。
 
-而 LinkedBlockingQueue 之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。
+而 LinkedBlockingQueue 之所以能够高效的处理并发数据，还因为 **其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。**
 
 **ArrayBlockingQueue 和 LinkedBlockingQueue 是两个最普通也是最常用阻塞队列，一般情况下，在处理多线程间的生产者消费者问题，使用这两个类足以。**
 
-==**一句话总结: 由链表结构组成的有界（但大小默认值为integer.MAX_VALUE）阻塞队列。**==
+==**一句话总结: 由链表结构组成的有界（但大小默认值为Integer.MAX_VALUE）阻塞队列。**==
 
 
 
@@ -1786,11 +1794,11 @@ DelayQueue 中的元素只有当其指定的延迟时间到了，才能够从队
 
 ### 9.4.4 PriorityBlockingQueue
 
-基于优先级的阻塞队列（优先级的判断通过构造函数传入的 Compator 对象来决定），但需要注意的是 PriorityBlockingQueue 并**不会阻塞数据生产者，而只会在没有可消费的数据时，阻塞数据的消费者**。
+基于优先级的阻塞队列（优先级的判断通过构造函数传入的 Compator 对象来决定），但需要注意的是 PriorityBlockingQueue 并 **不会阻塞数据生产者，而只会在没有可消费的数据时，阻塞数据的消费者**。
 
 因此使用的时候要特别注意，**生产者生产数据的速度绝对不能快于消费者消费数据的速度**，否则时间一长，会最终耗尽所有的可用堆内存空间。
 
-在实现 PriorityBlockingQueue 时，内部控制线程同步的锁采用的是**公平锁**。
+在实现 PriorityBlockingQueue 时，内部控制线程同步的锁采用的是 **公平锁**。
 
 ==**一句话总结: 支持优先级排序的无界阻塞队列。**==
 
@@ -1842,9 +1850,7 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 
 ## 9.5 小结
 
-**1. 在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件**
-
-**满足，被挂起的线程又会自动被唤起**
+**1. 在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件满足，被挂起的线程又会自动被唤起**
 
 **2. 为什么需要 BlockingQueue?** 在 concurrent 包发布以前，在多线程环境下，我们每个程序员都必须去自己控制这些细节，尤其还要兼顾效率和线程安全，而这会给我们的程序带来不小的复杂度。使用后我们不需要关心什么时候需要阻塞线程，什么时候需要唤醒线程，因为这一切 BlockingQueue 都给你一手包办了
 
@@ -1870,7 +1876,7 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 
 - **Java** **中的线程池是通过** **Executor** **框架实现的，该框架中用到了** **Executor，Executors，ExecutorService，ThreadPoolExecutor** **这几个类**
 
-<img src="./1 JUC基础篇.assets/12.png" alt="12.png" style="zoom:67%;" />
+<img src="./1 JUC基础篇.assets/b-12.png" alt="12.png" style="zoom:67%;" />
 
 
 
@@ -1918,7 +1924,7 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 
 总结起来，也就是一句话
 
-**当提交的任务数大于（workQueue.size() +** **maximumPoolSize ），就会触发线程池的拒绝策略**。
+**当提交的任务数大于（ `workQueue.size() + maximumPoolSize` ），就会触发线程池的拒绝策略**。
 
 
 
@@ -1926,7 +1932,7 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 
 **CallerRunsPolicy**: 当触发拒绝策略，只要线程池没有关闭的话，则使用调用线程直接运行任务。一般并发比较小，性能要求不高，不允许失败。但是，由于调用者自己运行任务，如果任务提交速度过快，可能导致程序阻塞，性能效率上必然的损失较大
 
-**AbortPolicy**: 丢弃任务，并抛出拒绝执行 RejectedExecutionException 异常信息。线程池默认的拒绝策略。必须处理好抛出的异常，否则会打断当前的执行流程，影响后续的任务执行。
+**AbortPolicy**: 丢弃任务，并抛出拒绝执行 `RejectedExecutionException` 异常信息。线程池默认的拒绝策略。必须处理好抛出的异常，否则会打断当前的执行流程，影响后续的任务执行。
 
 **DiscardPolicy**: 直接丢弃，其他啥都没有
 
@@ -1934,9 +1940,11 @@ LinkedBlockingDeque 是一个由链表结构组成的双向阻塞队列，即可
 
 
 
-## **10.3 **线程池的种类与创建
+## 10.3 线程池的种类与创建
 
-讲下简单案例：Single效率太低pass，用cache大量线程同时生成，池子处理速度赶不上线程生成速度导致池子越来越大pass，最后用的fixed（结合了cpu核心+单次处理数据限制）
+讲下简单案例：`Single` 效率太低 `pass`，用 `cache` 大量线程同时生成，池子处理速度赶不上线程生成速度导致池子越来越大 `pass`，最后用的`fixed`（结合了cpu核心+单次处理数据限制）
+
+
 
 ### 10.3.1 newCachedThreadPool(常用)【可扩容 根据需求创建】
 
@@ -2125,7 +2133,7 @@ public class ThreadPoolDemo1 {
 
 ### 10.3.4 newScheduleThreadPool(了解)
 
-**作用:** 线程池支持定时以及周期性执行任务，创建一个 corePoolSize 为传入参数，最大线程数为整形的最大数的线程池
+**作用:** 线程池支持定时以及周期性执行任务，创建一个 `corePoolSize` 为传入参数，最大线程数为整形的最大数的线程池
 
 **特征:**
 
@@ -2139,9 +2147,11 @@ public class ThreadPoolDemo1 {
 
 ### 10.3.5 newWorkStealingPool
 
-jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一个拥有多个任务队列的线程池，可以减少连接数，创建当前可用 cpu 核数的线程来并行执行任务
+jdk1.8 提供的线程池，底层使用的是 `ForkJoinPool` 实现，创建一个拥有多个任务队列的线程池，可以减少连接数，创建当前可用 `cpu` 核数的线程来并行执行任务
 
 **场景:** 适用于大耗时，可并行执行的场景
+
+
 
 ## 10.4 线程池入门案例
 
@@ -2149,36 +2159,36 @@ jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一�
 
 ## 10.5 线程池底层工作原理(重要)
 
-<img src="./1 JUC基础篇.assets/13.png" alt="13.png" style="zoom:67%;" />
+<img src="./1 JUC基础篇.assets/b-13.png" alt="13.png" style="zoom:67%;" />
 
 1. **在创建了线程池后，线程池中的线程数为零**
 
-2. **当调用 execute()方法添加一个请求任务时，线程池会做出如下判断：**
+2. **当调用 `execute()` 方法添加一个请求任务时，线程池会做出如下判断：**
 
-   2.1 **如果正在运行的线程数量小于corePoolSize，那么马上创建线程运行这个任务；**
+   2.1 **如果正在运行的线程数量小于 `corePoolSize` ，那么马上创建线程运行这个任务；**
 
-   2.2 **如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列；** 
+   2.2 **如果正在运行的线程数量大于或等于 `corePoolSize` ，那么将这个任务放入队列；** 
 
-   2.3 **如果这个时候队列满了且正在运行的线程数量还小于maximumPoolSize，那么还是要创建非核心线程立刻运行这个任务；**
+   2.3 **如果这个时候队列满了且正在运行的线程数量还小于 `maximumPoolSize`，那么还是要创建非核心线程立刻运行这个任务；**
 
-   2.4 **如果队列满了且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会启动饱和拒绝策略来执行。**
+   2.4 **如果队列满了且正在运行的线程数量大于或等于 `maximumPoolSize`，那么线程池会启动饱和拒绝策略来执行。**
 
 3. **当一个线程完成任务时，它会从队列中取下一个任务来执行**
-4. **当一个线程无事可做超过一定的时间（keepAliveTime）时，线程会判断：**
+4. **当一个线程无事可做超过一定的时间（`keepAliveTime`）时，线程会判断：**
 
-4.1. **如果当前运行的线程数大于 corePoolSize，那么这个线程就被停掉。**
+4.1. **如果当前运行的线程数大于 `corePoolSize`，那么这个线程就被停掉。**
 
-4.2. **所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。**
+4.2. **所以线程池的所有任务完成后，它最终会收缩到 `corePoolSize` 的大小。**
 
-![14.png](./1 JUC基础篇.assets/14.png)
+![14.png](./1 JUC基础篇.assets/b-14.png)
 
 
 
 ## 10.6 注意事项(重要)
 
-1. 项目中创建多线程时，使用常见的三种线程池创建方式，单一、可变、定长都有一定问题，原因是 FixedThreadPool 和 SingleThreadExecutor 底层都是用LinkedBlockingQueue 实现的，这个队列最大长度为 Integer.MAX_VALUE，容易导致 OOM。所以实际生产一般自己通过 ThreadPoolExecutor 的 7 个参数，自定义线程池
+1. 项目中创建多线程时，使用常见的三种线程池创建方式，单一、可变、定长都有一定问题，原因是 `FixedThreadPool` 和 `SingleThreadExecutor` 底层都是用 `LinkedBlockingQueue` 实现的，这个队列最大长度为 `Integer.MAX_VALUE`，容易导致 `OOM`。所以实际生产一般自己通过 `ThreadPoolExecutor` 的 7 个参数，自定义线程池
 
-2. 创建线程池推荐适用 ThreadPoolExecutor 及其 7 个参数手动创建
+2. 创建线程池推荐适用 `ThreadPoolExecutor` 及其 7 个参数手动创建
 
 - **`int corePoolSize` 线程池的核心线程数**
 
@@ -2194,9 +2204,9 @@ jdk1.8 提供的线程池，底层使用的是 ForkJoinPool 实现，创建一�
 
 - **`RejectedExecutionHandler handler` 等待队列满后的拒绝策略**
 
-3. 为什么不允许适用不允许 Executors.的方式手动创建线程池,如下图
+3. 为什么不允许 Executors.的方式手动创建线程池,如下图
 
-![15.png](./1 JUC基础篇.assets/15.png)
+![15.png](./1 JUC基础篇.assets/b-15.png)
 
 
 
@@ -2228,35 +2238,35 @@ Fork/Join 它可以将一个大的任务拆分成多个子任务进行并行处�
 
 **Join：把分拆任务的结果进行合并**
 
-<img src="./1 JUC基础篇.assets/16.png" alt="16.png" style="zoom:67%;" />
+<img src="./1 JUC基础篇.assets/b-16.png" alt="16.png" style="zoom:67%;" />
 
 1. **任务分割**：首先 Fork/Join 框架需要把大的任务分割成足够小的子任务，如果子任务比较大的话还要对子任务进行继续分割
 
-2. **执行任务并合并结果**：分割的子任务分别放到双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都放在另外一个队列里，启动一个线程从队列里取数据，然后合并这些数据。在 Java 的 Fork/Join 框架中，使用两个类完成上述操作
+2. **执行任务并合并结果**：分割的子任务分别放到双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都放在另外一个队列里，启动一个线程从队列里取数据，然后合并这些数据。在 `Java` 的 `Fork/Join` 框架中，使用两个类完成上述操作
 
-**ForkJoinTask**:我们要使用 Fork/Join 框架，首先需要创建一个 ForkJoin 任务。该类提供了在任务中执行 fork 和 join 的机制。通常情况下我们不需要直接集成 ForkJoinTask 类，只需要继承它的子类，Fork/Join 框架提供了两个子类：
+**ForkJoinTask**:我们要使用 `Fork/Join` 框架，首先需要创建一个 `ForkJoin` 任务。该类提供了在任务中执行 `fork` 和 `join` 的机制。通常情况下我们不需要直接集成 `ForkJoinTask` 类，只需要继承它的子类，`Fork/Join` 框架提供了两个子类：
 
- a.RecursiveAction：用于没有返回结果的任务
+ `a.RecursiveAction`：用于没有返回结果的任务
 
- b.RecursiveTask:用于有返回结果的任务
+ `b.RecursiveTask`:用于有返回结果的任务
 
-- **ForkJoinPool**:ForkJoinTask 需要通过 ForkJoinPool 来执行
+- **ForkJoinPool**: `ForkJoinTask` 需要通过 `ForkJoinPool` 来执行
 
 - **RecursiveTask**: 继承后可以实现递归(自己调自己)调用的任务
 
 **Fork/Join 框架的实现原理**
 
-ForkJoinPool 由 ForkJoinTask 数组和 ForkJoinWorkerThread 数组组成，ForkJoinTask 数组负责将存放以及将程序提交给 ForkJoinPool，而ForkJoinWorkerThread 负责执行这些任务。
+`ForkJoinPool` 由 `ForkJoinTask` 数组和 `ForkJoinWorkerThread` 数组组成，`ForkJoinTask` 数组负责将存放以及将程序提交给 `ForkJoinPool`，而`ForkJoinWorkerThread` 负责执行这些任务。
 
 
 
 ## 11.2 Fork 方法
 
-<img src="./1 JUC基础篇.assets/17.png" alt="17.png" style="zoom:67%;" />
+<img src="./1 JUC基础篇.assets/b-17.png" alt="17.png" style="zoom:67%;" />
 
-<img src="./1 JUC基础篇.assets/18.png" alt="18.png" style="zoom:50%;" />
+<img src="./1 JUC基础篇.assets/b-18.png" alt="18.png" style="zoom:50%;" />
 
-**Fork 方法的实现原理：** 当我们调用 ForkJoinTask 的 fork 方法时，程序会把任务放在 ForkJoinWorkerThread 的 pushTask 的 **workQueue** 中，异步地执行这个任务，然后立即返回结果
+**Fork 方法的实现原理：** 当我们调用 `ForkJoinTask` 的 `fork` 方法时，程序会把任务放在 `ForkJoinWorkerThread` 的 `pushTask` 的 **workQueue** 中，异步地执行这个任务，然后立即返回结果
 
 ```java
     public final ForkJoinTask<V> fork() {
@@ -2269,7 +2279,7 @@ ForkJoinPool 由 ForkJoinTask 数组和 ForkJoinWorkerThread 数组组成，Fork
     }
 ```
 
-pushTask 方法把当前任务存放在 ForkJoinTask 数组队列里。然后再调用ForkJoinPool 的 signalWork()方法唤醒或创建一个工作线程来执行任务。代码如下：
+`pushTask` 方法把当前任务存放在 `ForkJoinTask` 数组队列里。然后再调用 `ForkJoinPool` 的 `signalWork()` 方法唤醒或创建一个工作线程来执行任务。代码如下：
 
 ```java
 final void push(ForkJoinTask<?> task) {
@@ -2303,17 +2313,17 @@ public final V join() {
  }
 ```
 
-它首先调用 doJoin 方法，通过 doJoin()方法得到当前任务的状态来判断返回什么结果，任务状态有 4 种：
+它首先调用 `doJoin` 方法，通过 `doJoin()` 方法得到当前任务的状态来判断返回什么结果，任务状态有 4 种：
 
 **==已完成（NORMAL）、被取消（CANCELLED）、信号（SIGNAL）和出现异常（EXCEPTIONAL）==**
 
 - 如果任务状态是已完成，则直接返回任务结果。
 
-- 如果任务状态是被取消，则直接抛出 CancellationException
+- 如果任务状态是被取消，则直接抛出 `CancellationException`
 
 - 如果任务状态是抛出异常，则直接抛出对应的异常
 
-让我们分析一下 doJoin 方法的实现
+让我们分析一下 `doJoin` 方法的实现
 
 ```java
     private int doJoin() {
@@ -2345,26 +2355,26 @@ public final V join() {
     }
 ```
 
-在 doJoin()方法流程如下:
+在 `doJoin()` 方法流程如下:
 
 1. 首先通过查看任务的状态，看任务是否已经执行完成，如果执行完成，则直接返回任务状态；
 
 2. 如果没有执行完，则从任务数组里取出任务并执行。
-3. 如果任务顺利执行完成，则设置任务状态为 NORMAL，如果出现异常，则记录异常，并将任务状态设置为 EXCEPTIONAL。
+3. 如果任务顺利执行完成，则设置任务状态为 `NORMAL`，如果出现异常，则记录异常，并将任务状态设置为 `EXCEPTIONAL`。
 
 
 
 ## 11.4 Fork/Join 框架的异常处理
 
-ForkJoinTask 在执行的时候可能会抛出异常，但是我们没办法在主线程里直接捕获异常，所以 ForkJoinTask 提供了 isCompletedAbnormally()方法来检查任务是否已经抛出异常或已经被取消了，并且可以通过 ForkJoinTask 的getException 方法获取异常。
+`ForkJoinTask` 在执行的时候可能会抛出异常，但是我们没办法在主线程里直接捕获异常，所以 `ForkJoinTask` 提供了 `isCompletedAbnormally()` 方法来检查任务是否已经抛出异常或已经被取消了，并且可以通过 `ForkJoinTask` 的 `getException` 方法获取异常。
 
-getException 方法返回 Throwable 对象，如果任务被取消了则返回CancellationException。如果任务没有完成或者没有抛出异常则返回 null。
+`getException` 方法返回 `Throwable` 对象，如果任务被取消了则返回 `CancellationException`。如果任务没有完成或者没有抛出异常则返回 `null`。
 
 
 
 ## 11.5 入门案例
 
-**场景: 生成一个计算任务，计算 1+2+3.........+1000**,**==每 100 个数切分一个子任务==**
+**场景: 生成一个计算任务，计算 1+2+3.........+1000**, **==每 100 个数切分一个子任务==**
 
 ```java
 class myTask extends RecursiveTask<Integer> {
@@ -2437,37 +2447,37 @@ public class ForkJoinDemo {
 
 ## 12.1 CompletableFuture 简介
 
-CompletableFuture 在 Java 里面被用于异步编程，异步通常意味着非阻塞，可以使得我们的任务单独运行在与主线程分离的其他线程中，并且通过回调可以在主线程中得到异步任务的执行状态，是否完成，和是否异常等信息。
+`CompletableFuture` 在 `Java` 里面被用于异步编程，异步通常意味着非阻塞，可以使得我们的任务单独运行在与主线程分离的其他线程中，并且通过回调可以在主线程中得到异步任务的执行状态，是否完成，和是否异常等信息。
 
-CompletableFuture 实现了 Future, CompletionStage 接口，实现了 Future接口就可以兼容现在有线程池框架，而 CompletionStage 接口才是异步编程的接口抽象，里面定义多种异步方法，通过这两者集合，从而打造出了强大的CompletableFuture 类。
+`CompletableFuture` 实现了 `Future`, `CompletionStage` 接口，实现了 Future接口就可以兼容现在有线程池框架，而 `CompletionStage` 接口才是异步编程的接口抽象，里面定义多种异步方法，通过这两者集合，从而打造出了强大的 `CompletableFuture` 类。
 
 
 
 ## 12.2 Future 与 CompletableFuture
 
-Futrue 在 Java 里面，通常用来表示一个异步任务的引用，比如我们将任务提交到线程池里面，然后我们会得到一个 Futrue，在 Future 里面有 isDone 方法来 判断任务是否处理结束，还有 get 方法可以一直阻塞直到任务结束然后获取结果，但整体来说这种方式，还是同步的，因为需要客户端不断阻塞等待或者不断轮询才能知道任务是否完成。
+`Futrue` 在 `Java` 里面，通常用来表示一个异步任务的引用，比如我们将任务提交到线程池里面，然后我们会得到一个 `Futrue`，在 `Future` 里面有 `isDone` 方法来 判断任务是否处理结束，还有 `get` 方法可以一直阻塞直到任务结束然后获取结果，但整体来说这种方式，还是同步的，因为需要客户端不断阻塞等待或者不断轮询才能知道任务是否完成。
 
 **Future 的主要缺点如下：**
 
-（1）不支持手动完成
+（1）**不支持手动完成**
 
 我提交了一个任务，但是执行太慢了，我通过其他路径已经获取到了任务结果，现在没法把这个任务结果通知到正在执行的线程，所以必须主动取消或者一直等待它执行完成
 
-（2）不支持进一步的非阻塞调用
+（2）**不支持进一步的非阻塞调用**
 
-通过 Future 的 get 方法会一直阻塞到任务完成，但是想在获取任务之后执行额外的任务，因为 Future 不支持回调函数，所以无法实现这个功能
+通过 `Future` 的 `get` 方法 **会一直阻塞到任务完成，但是想在获取任务之后执行额外的任务，因为 `Future` 不支持回调函数，所以无法实现这个功能**
 
-（3）不支持链式调用
+（3）**不支持链式调用**
 
-对于 Future 的执行结果，我们想继续传到下一个 Future 处理使用，从而形成一个链式的 pipline 调用，这在 Future 中是没法实现的。
+对于 `Future` 的执行结果，我们想继续传到下一个 `Future` 处理使用，从而形成一个链式的 `pipline` 调用，这在 `Future` 中是没法实现的。
 
-（4）不支持多个 Future 合并
+（4）**不支持多个 `Future` 合并**
 
-比如我们有 10 个 Future 并行执行，我们想在所有的 Future 运行完毕之后，执行某些函数，是没法通过 Future 实现的。
+比如我们有 `10` 个 `Future` 并行执行，我们想在所有的 `Future` 运行完毕之后，执行某些函数，是没法通过 `Future` 实现的。
 
-（5）不支持异常处理
+（5）**不支持异常处理**
 
-Future 的 API 没有任何的异常处理的 api，所以在异步运行时，如果出了问题是不好定位的。
+`Future` 的 `API` 没有任何的异常处理的 `api`，所以在异步运行时，如果出了问题是不好定位的。
 
 
 
@@ -2496,7 +2506,7 @@ public class CompletableFutureDemo {
 
 
 
-### **12.3.3 **有返回值的异步任务
+### 12.3.3 有返回值的异步任务
 
 **这里异步返回的两个参数 一个是返回值，一个是运行过程中的异常信息。**
 
@@ -2517,7 +2527,6 @@ public class CompletableFutureDemo {
     }
 }
 ```
-
 
 
 

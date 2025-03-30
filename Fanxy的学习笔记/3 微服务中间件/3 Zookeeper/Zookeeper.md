@@ -1,6 +1,6 @@
-# **第** **1** **章** **Zookeeper** **入门**
+# 第 1 章 Zookeeper 入门
 
-## **1.1. 概述**
+## 1.1. 概述
 
 `Zookeeper` 是一个开源的分布式的，为分布式框架提供协调服务的 `Apache` 项目
 
@@ -56,7 +56,7 @@
 
 ![7loadbanlanced.png](./Zookeeper.assets/7loadbanlanced.png)
 
-## **1.5.** **下载地址**
+## 1.5. 下载地址
 
 **1）官网首页：**
 
@@ -66,7 +66,7 @@ https://zookeeper.apache.org/
 
 ![8Download.png](./Zookeeper.assets/8Download.png)
 
-# **第** **2** **章** **Zookeeper** **本地安装**
+# 第 2 章 Zookeeper 本地安装
 
 ## **2.1.** **本地模式安装**
 
@@ -92,7 +92,9 @@ Zookeeper中的配置文件`zoo.cfg`中参数含义解读如下：
 
 ![13配置.png](./Zookeeper.assets/13配置.png)
 
-# **第** **3** **章** **Zookeeper** **集群操作**
+
+
+# 第 3 章 Zookeeper 集群操作
 
 ## **3.1.** 集群操作
 
@@ -375,6 +377,8 @@ log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n
 
 **5）创建类名称zkClient**
 
+
+
 ### **3.3.2.** 创建 `ZooKeeper` 客户端
 
 ```java
@@ -409,6 +413,8 @@ public class ZooKeeperClient {
 }   
 ```
 
+
+
 ### 3.3.3. 创建子节点
 
 这里设置监听器`true`或`false`的含义是：是否使用监听器监听，`true`是使用初始化这个`Zookeeper`对象的监听器的方法，而`false`代表不使用，也可以传入一个新的监听器。
@@ -430,6 +436,8 @@ public class ZooKeeperClient {
 
 此时我们对监听的 "`/`" 下进行节点的添加等操作，会被监听到，并调用回调函数，将当前 "`/`" 下的子节点都遍历打印出来。
 
+
+
 ### 3.3.5. 判断 `Znode` 是否存在
 
 这里记得把上面的监听器注释掉，可以看的清楚一些。
@@ -442,11 +450,15 @@ public class ZooKeeperClient {
     }
 ```
 
+
+
 ## 3.4. 客户端向服务端写数据流程
 
 ### 3.4.1. <font color="bb000">写流程之写入请求直接发送给 Leader 节点</font>
 
 <img src="./Zookeeper.assets/30发送给Leader.png" alt="30发送给Leader.png" style="zoom: 50%;" />
+
+
 
 ### 3.4.2. <font color="bb000">写流程之写入请求发送给 follower 节点</font>
 
@@ -454,15 +466,19 @@ public class ZooKeeperClient {
 
 <img src="./Zookeeper.assets/31发送给Follow节点.png" alt="31发送给Follow节点.png" style="zoom: 50%;" />
 
-# **第** **4** **章** 服务器动态上下线监听案例
 
-## **4.1.** 需求
+
+# 第 4 章 服务器动态上下线监听案例
+
+## 4.1. 需求
 
 某分布式系统中，主节点可以有多台，可以动态上下线，任意一台客户端都能实时感知到主节点服务器的上下线。
 
 ## 4.2. 需求分析
 
 ![32动态上线.png](./Zookeeper.assets/32动态上线.png)
+
+
 
 ### 4.3. 具体实现
 
@@ -573,13 +589,17 @@ public class DistributeClient {
 }
 ```
 
+
+
 ## 4.4. 测试
 
 ![34测试1](./Zookeeper.assets/34测试1.png)
 
 ![34测试2.png](./Zookeeper.assets/34测试2.png)
 
-# **第** **5** **章** **ZooKeeper** **分布式锁案例**
+
+
+# 第 5 章 ZooKeeper 分布式锁案例
 
 什么叫做分布式锁呢？
 
@@ -587,7 +607,9 @@ public class DistributeClient {
 
 ![35分布式锁.png](./Zookeeper.assets/35分布式锁.png)
 
-## **5.1** **原生** **Zookeeper** **实现分布式锁案例**
+
+
+## 5.1 原生 Zookeeper 实现分布式锁案例
 
 **1）分布式锁实现**
 
@@ -900,9 +922,9 @@ public class CuratorLockTest {
 
 线程 2 再次释放锁
 
-# **第** **6** **章 企业面试真题（面试重点）**
+# 第 6 章 企业面试真题（面试重点）
 
-## **6.1** **选举机制**
+## 6.1 选举机制
 
 **<font color="bb000">半数机制，超过半数的投票通过，即通过。</font>**
 
@@ -934,6 +956,8 @@ public class CuratorLockTest {
 
 **<font color="bb000">服务器台数多：好处，提高可靠性；坏处：提高通信延时</font>**
 
-### **6.3 常用命令**
+
+
+## 6.3 常用命令
 
 ls、get、create、delete

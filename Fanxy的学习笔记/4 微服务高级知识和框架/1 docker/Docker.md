@@ -816,7 +816,7 @@ https://promotion.aliyun.com/ntms/act/kubernetes.html
 
 **选择控制台，进入容器镜像服务，然后选择个人实例**
 
-<img src="./Docker.assets/47个人实例.png" alt="47个人实例.png" style="zoom:50%;" />**
+<img src="./Docker.assets/47个人实例.png" alt="47个人实例.png" style="zoom:50%;" />
 
 **命名空间**
 
@@ -996,7 +996,7 @@ docker run -it 镜像ID /bin/bash
 
 ## 7.2. 是什么
 
-上一章我们使用了这个命令，带有 `-v`的参数
+上一章我们使用了这个命令，带有 `-v` 的参数
 
 ```sh
 docker run -d -p 5000:5000  -v /fanxyuse/myregistry/:/tmp/registry --privileged=true registry
@@ -1226,7 +1226,7 @@ SHOW VARIABLES LIKE 'character%'
 1. **新建mysql容器实例，密码自己写**
 
 ```sh
-docker run -d -p 3306:3306 --privileged=true -v /fanxyuse/mysql/log:/var/log/mysql -v /fanxyuse/mysql/data:/var/lib/mysql -v /fanxyuse/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123456  --name mysql57 mysql:8
+docker run -d -p 3306:3306 --privileged=true -v /fanxyuse/mysql/log:/var/log/mysql -v /fanxyuse/mysql/data:/var/lib/mysql -v /fanxyuse/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123456  --name mysql8 mysql:8
 ```
 
 2. **新建my.cnf**
@@ -1252,11 +1252,11 @@ character_set_server = utf8
 3. **重新启动mysql容器实例再重新进入并查看字符编码**
 
 ```sh
-docker restart mysql57
+docker restart mysql8
 ```
 
 ```sh
-docker exec -it mysql57 /bin/bash
+docker exec -it mysql8 /bin/bash
 ```
 
 ```sh
@@ -1285,7 +1285,7 @@ create table bb(id int, name varchar(20));
 
 5. **结论**
 
-**之前的 `DB`无效**
+**之前的 `DB` 无效**
 
 **修改字符集操作+重启mysql容器实例**
 

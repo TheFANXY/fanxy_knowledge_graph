@@ -1,6 +1,6 @@
 # 用户中心升级版
 
-**前端**基于 [ES6](http://es6.ruanyifeng.com/)、[vue3](https://cn.vuejs.org/index.html)、[pinia](https://pinia.web3doc.top/)、[vue-router](https://router.vuejs.org/) 、`vite` 、`axios` 和 `element-plus`
+**前端** 基于 [ES6](http://es6.ruanyifeng.com/)、[vue3](https://cn.vuejs.org/index.html)、[pinia](https://pinia.web3doc.top/)、[vue-router](https://router.vuejs.org/) 、`vite` 、`axios` 和 `element-plus`
 
 # 1. 项目工具介绍
 

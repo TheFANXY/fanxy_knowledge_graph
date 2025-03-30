@@ -1,8 +1,14 @@
-### 第01章 Linux下MySQL的安装与使用
+# 第01章 Linux下MySQL的安装与使用
 
-#### **1.** **安装前说明**
+这里关于最基本的 `Mysql` 内容如增删改，视图，`ddl`，`dml`， `dql`， 这部分就不加赘述了，相信这部分大多数人应该学过了。没学过的可以看我的 `CSDN` 部分有基础 `mysql` 笔记，当然，有价值的章节日后也会移植到我的博客。比如关于相关查询，外连接，内连接等。
 
-##### **1.1** **查看是否安装过MySQL**
+可能有些人会认为，`docker` 会了安装，这部分就不学了，这部分 `mysql` 的安装其实也是作为一个补充，如果 `docker` 会安装，不代表出现了问题就寻求的是 `docker` 的笔记，配置文件还是得靠学 `mysql` 才会配置，同时 `docker` 安装，比如怎么进入设置一些， `mysql` 连接用户的 `host` ，字符集等，是需要先学 `mysql` 懂了这些操作，才能用 `docker` 玩的轻松。   
+
+
+
+# **1.** **安装前说明**
+
+## **1.1** **查看是否安装过MySQL**
 
 - 如果你是用rpm安装, 检查一下RPM PACKAGE：
 
@@ -16,7 +22,9 @@ rpm -qa | grep -i mysql # -i 忽略大小写
 systemctl status mysqld.service
 ```
 
-##### **1.2 MySQL的卸载**
+
+
+## 1.2 MySQL的卸载
 
 **1.** **关闭** **mysql** **服务**
 
@@ -38,7 +46,7 @@ yum list installed | grep mysql
 yum remove mysql-xxx mysql-xxx mysql-xxx mysqk-xxxx
 ```
 
-务必卸载干净，反复执行`rpm -qa | grep -i mysql`确认是否有卸载残留
+务必卸载干净，反复执行 `rpm -qa | grep -i mysql` 确认是否有卸载残留
 
 **4.** **删除** **mysql** **相关文件**
 
@@ -60,9 +68,11 @@ rm -rf xxx
 rm -rf /etc/my.cnf
 ```
 
-#### **2. MySQL的Linux版安装**
 
-##### **2.1 CentOS7下检查MySQL依赖** 
+
+# 2. MySQL的Linux版安装
+
+## 2.1 CentOS7下检查MySQL依赖 
 
 **1.** **检查/tmp临时目录权限（必不可少）**
 
@@ -79,7 +89,9 @@ rpm -qa|grep libaio
 rpm -qa|grep net-tools
 ```
 
-##### **2.2 CentOS7下MySQL安装过程** 
+
+
+## 2.2 CentOS7下MySQL安装过程 
 
 **1.** **将安装程序拷贝到/opt目录下**
 
@@ -97,14 +109,16 @@ rpm -ivh mysql-community-client-8.0.25-1.el7.x86_64.rpm
 rpm -ivh mysql-community-server-8.0.25-1.el7.x86_64.rpm
 ```
 
-- `rpm`是Redhat Package Manage缩写，通过RPM的管理，用户可以把源代码包装成以rpm为扩展名的文件形式，易于安装。
+- `rpm` 是Redhat Package Manage缩写，通过RPM的管理，用户可以把源代码包装成以rpm为扩展名的文件形式，易于安装。
 - `-i`, --install 安装软件包
 - `-v`, --verbose 提供更多的详细信息输出
 - `-h`, --hash 软件包安装的时候列出哈希标记 (和 -v 一起使用效果更好)，展示进度条
 
-> 若存在mariadb-libs问题，则执行**yum remove mysql-libs**即可
+> 若存在 `mariadb-libs` 问题，则执行 **`yum remove mysql-libs`** 即可
 
-##### **2.3** **查看MySQL版本**
+
+
+## 2.3 查看MySQL版本
 
 ```shell
 mysql --version 
@@ -112,7 +126,9 @@ mysql --version
 mysqladmin --version
 ```
 
-##### **2.4** **服务的初始化**
+
+
+## 2.4 服务的初始化
 
 为了保证数据库目录与文件的所有者为 mysql 登录用户，如果你是以 root 身份运行 mysql 服务，需要执行下面的命令初始化：
 
@@ -130,7 +146,9 @@ cat /var/log/mysqld.log
 
 root@localhost: 后面就是初始化的密码
 
-##### **2.5** **启动MySQL，查看状态** 
+
+
+## 2.5 启动MySQL，查看状态 
 
 ```shell
 #加不加.service后缀都可以 
@@ -140,10 +158,12 @@ root@localhost: 后面就是初始化的密码
 查看状态：systemctl status mysqld.service
 ```
 
-##### **2.6** **查看MySQL服务是否自启动**
+
+
+## 2.6 查看MySQL服务是否自启动
 
 ```shell
-systemctl list-unit-files|grep mysqld.service
+systemctl list-unit-files | grep mysqld.service
 ```
 
 - 如不是enabled可以运行如下命令设置自启动
@@ -158,19 +178,25 @@ systemctl enable mysqld.service
 systemctl disable mysqld.service
 ```
 
-#### **3. MySQL登录**
 
-##### **3.1** **首次登录**
+
+# 3. MySQL登录
+
+## 3.1 首次登录
 
 通过`mysql -hlocalhost -P3306 -uroot -p`进行登录，在Enter password：录入初始化密码
 
-##### **3.2** **修改密码**
+
+
+## 3.2 修改密码
 
 ```mysql
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
 ```
 
-##### **3.3** **设置远程登录**
+
+
+## 3.3 设置远程登录
 
 **1.** **确认网络** 
 
@@ -224,7 +250,9 @@ firewall-cmd --add-port=3306/tcp --permanent
 firewall-cmd --reload
 ```
 
-#### **4. Linux下修改配置**
+
+
+# 4. Linux下修改配置
 
 - 修改允许远程登陆
 
@@ -249,9 +277,11 @@ flush privileges;
 ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'abc123';
 ```
 
-#### **5.** **字符集的相关操作**
 
-##### **5.1** **各级别的字符集**
+
+# 5. 字符集的相关操作
+
+## 5.1 各级别的字符集
 
 ```mysql
 show variables like 'character%';
@@ -263,7 +293,9 @@ show variables like 'character%';
 - character_set_connection：服务器处理请求时会把请求字符串从character_set_client转为character_set_connection 
 - character_set_results：服务器向客户端返回数据时使用的字符集
 
-##### 5.2 mysql5.7改字符集
+
+
+## 5.2 mysql5.7改字符集
 
 ```sh
 vim /etc/my.cnf
@@ -275,7 +307,9 @@ vim /etc/my.cnf
 character_set_server=utf8
 ```
 
-##### 5.3 已有库或表字符集的变更
+
+
+## 5.3 已有库或表字符集的变更
 
 ```sql
 alter database 【库名】 character set 'utf8';
@@ -291,7 +325,9 @@ alter table 【表名】 convert to character set 'utf8';
 - 如果`创建表时`没有显式的指定字符集和比较规则，则该表`默认用数据库的`字符集和比较规则
 - 如果`创建数据库时`没有显式的指定字符集和比较规则，则该数据库`默认用服务器的`字符集和比较规则
 
-##### **5.4** 请求到响应过程中字符集的变化
+
+
+## 5.4 请求到响应过程中字符集的变化
 
 ```mermaid
 graph TB
@@ -301,13 +337,17 @@ C --> D(将查询结果从具体的列上使用的字符集转换为character_se
 D --> |"使用操作系统的字符集解码响应的字符串"| A
 ```
 
-#### 6. Mysql大小写设置
 
-##### 6.1. window
+
+# 6. Mysql大小写设置
+
+## 6.1. window
 
 Mysql在Windows环境下全部不区分大小写。
 
-##### 6.2. Linux大小写规则设置
+
+
+## 6.2. Linux大小写规则设置
 
 Linux如表名，数据库名，列的别名，严格区分大小写，想设置为大小写不敏感的时候，要在`my.cnf`这个配置文件`[mysqld]`中加入`lower_case_table_names=1`，然后重启服务器。
 
@@ -324,7 +364,9 @@ Linux如表名，数据库名，列的别名，严格区分大小写，想设置
 
 在进行数据库设置之前，需要掌握这个参数带来的影响，切不可盲目设置
 
-##### 6.3. SQL编写建议
+
+
+## 6.3. SQL编写建议
 
 >1. 关键字和函数名称全部大写
 >2. 数据库名，表名，表别名，字段名，字段别名等全部小写

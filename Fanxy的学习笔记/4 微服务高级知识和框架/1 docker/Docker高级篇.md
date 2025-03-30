@@ -85,6 +85,9 @@ GRANT REPLICATION SLAVE ON *.* TO 'slave1'@'%';
 #此语句必须执行。否则见下面。
 ALTER USER 'slave1'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 flush privileges;
+
+# mysql8 可以组合创建角色
+CREATE USER 'user1'@'%' IDENTIFIED WITH mysql_native_password BY 'your_password';
 ```
 
 ![1.png](./Docker高级篇.assets/1.png)

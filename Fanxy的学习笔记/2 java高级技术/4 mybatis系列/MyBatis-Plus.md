@@ -928,11 +928,10 @@ public class User {
 
     - `UpdateWrapper `： Update 条件封装
 
-    - `AbstractLambdaWrapper `： 使用Lambda 语法
-
-      - `LambdaQueryWrapper `：用于Lambda语法使用的查询Wrapper
-
-      - `LambdaUpdateWrapper `： Lambda 更新封装Wrapper
+    - `AbstractLambdaWrapper `： 使用 Lambda 语法
+- `LambdaQueryWrapper `：用于 Lambda语法使用的查询Wrapper
+      
+- `LambdaUpdateWrapper `： Lambda 更新封装Wrapper
 
 
 
@@ -1770,12 +1769,3 @@ class TestDatasourceApplicationTests {
 
 ![image-20220522123202310](https://image-bed-vz.oss-cn-hangzhou.aliyuncs.com/MyBatis-Plus/image-20220522123202310.png)
 
-
-
-# 十、致谢
-
-感谢尚硅谷杨博超老师：https://www.bilibili.com/video/BV12R4y157Be?p=1
-
-感谢MyBatis-Plus作者苞米豆：https://baomidou.com/
-
-感谢自己又坚持学习了一门课程：https://www.oz6.cn/

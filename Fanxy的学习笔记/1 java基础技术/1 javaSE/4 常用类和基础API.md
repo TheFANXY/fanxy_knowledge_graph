@@ -4,12 +4,12 @@
 
 ## 1.1 String的特性
 
-- **`java.lang.String` 类**代表字符串。Java程序中所有的字符串文字（例如`"hello"` ）都可以看作是实现此类的实例。
+- **`java.lang.String` 类** 代表字符串。Java程序中所有的字符串文字（例如`"hello"` ）都可以看作是实现此类的实例。
 - **字符串是常量**，用双引号引起来表示。它们的值在创建之后不能更改。
 - **字符串String类型本身是final声明的，意味着我们不能继承String。**
 - **String对象**的字符内容是**存储在一个字符数组value[]中的**。`"abc"` 等效于 `char[] data={'h','e','l','l','o'}`
 
-![1](./4 常用类和基础API.assets/1.png)
+![1](./4 常用类和基础API.assets/常用类1.png)
 
 ```java
 //jdk8中的String源码：
@@ -27,7 +27,7 @@ public final class String
 - **private意味着外面无法直接获取字符数组，而且String没有提供value的get和set方法**
 - **final意味着字符数组的引用不可改变，而且String也没有提供方法来修改value数组某个元素值**
 - **因此字符串的字符数组内容也不可变的，即String代表着不可变的字符序列。即，一旦对字符串进行修改，就会产生新对象**
-- **JDK9只有，底层使用byte[ ]数组**
+- **JDK9底层使用byte[ ]数组**
 - **Java 语言提供对字符串串联符号（"+"）以及将其他对象转换为字符串的特殊支持 toString( )方法**
 
 ```java
@@ -61,9 +61,13 @@ s1 = 'hi';
 
 
 
-![img](https://img-blog.csdnimg.cn/ab150a777b824fd59609f5e9f0f4d8d7.png)
+**以下图片记得目前的 JDK 版本，字符串常量池应该是在堆空间**
 
- ![img](https://img-blog.csdnimg.cn/2ccc27ca19e64364830e287c4efc9af8.png)
+
+
+![image-20230912191150690](./4 常用类和基础API.assets/常用类13.png)
+
+ ![img](./4 常用类和基础API.assets/常用类14.png)
 
 ```java
 Person p1 = new Person();
@@ -79,7 +83,7 @@ System.out.println(p1.name == "Tom");
 
 
 
-![img](https://img-blog.csdnimg.cn/24159eaac1ae4ae7a35d65d209223984.png)
+![img](./4 常用类和基础API.assets/常用类15.png)
 
 ### 1.2.3 练习类型2：new
 
@@ -92,7 +96,7 @@ System.out.println(p1.name == "Tom");
 >
 > String str2 = new String("hello"); 在内存中创建了几个对象？ **两个**
 
- ![img](https://img-blog.csdnimg.cn/29b0259dd604408990d134293af46a1b.png)
+ ![img](./4 常用类和基础API.assets/常用类16.png)
 
 ```java
 String s1 = "javaEE";
@@ -108,9 +112,11 @@ System.out.println(s3 == s4);//false
 
 
 
- ![img](https://img-blog.csdnimg.cn/b00eebfcf92f4d8fa0227288cca7e663.png)
+![image-20230912201800842](./4 常用类和基础API.assets/常用类18.png)
 
 ### 1.2.4 练习类型3：intern()
+
+**这个函数还是挺重要的，我在我的后台项目中，为了防止出现同时注册了相同账号的用户，需要加锁，锁肯定只能锁字符串常量池中的对应的字符串，而不是对象【锁了个寂寞】**
 
 > - **String s1 = "a";**
 >
@@ -238,6 +244,12 @@ public class TestString {
 - **`public String(byte[] bytes)`** ：通过使用平台的**默认字符集**解码当前参数中的字节数组来构造新的String。
 - **`public String(byte[] bytes,String charsetName)`** ：通过使用指定的字符集解码当前参数中的字节数组来构造新的String。
 
+
+
+**RabbitMQ 中字符串都是必须使用 `byte数组存`，因此这个字符串转化使用 `getBytes()` 到时候前后字符最好都指定 `UTF-8`**
+
+
+
 ### 1.3.2 String与其他结构间的转换
 
 **字符串 --> 基本数据类型、包装类：**
@@ -364,15 +376,19 @@ public class TestString {
 
 # 2. 可变字符序列：`StringBuffer`、`StringBuilder`
 
+**`StringBuilder` 算法题的常客，`java` 性能差，能用 `StringBuilder` 尽量别用 `String`**
+
+
+
  因为String对象是不可变对象，虽然可以共享常量对象，但是**对于频繁字符串的修改和拼接操作，效率极低，空间消耗也比较高**。因此，JDK又在java.lang包提供了**可变字符序列StringBuffer和StringBuilder类型。**
 
 ## 2.1 `StringBuffer`与`StringBuilder`的理解
 
-![2.png](./4 常用类和基础API.assets/2.png)
+![2.png](./4 常用类和基础API.assets/常用类2.png)
 
- ![3.png](./4 常用类和基础API.assets/3.png)
+ ![3.png](./4 常用类和基础API.assets/常用类3.png)
 
- ![4.png](./4 常用类和基础API.assets/4.png)
+ ![4.png](./4 常用类和基础API.assets/常用类4.png)
 
 > - **StringBuilder 和 StringBuffer 非常类似，均代表可变的字符序列，而且提供相关功能的方法也一样。**
 > - 区分String、StringBuffer、StringBuilder
@@ -405,7 +421,7 @@ public class TestString {
 **（9）StringBuffer reverse()：反转 String里没有这个方法**
 
 > - 当append和insert时，如果原来value数组长度不够，可扩容。
-> - 如上(1)(2)(3)(4)(9)这些方法支持`方法链操作`。原理：
+> - 如上(1)(2)(3)(4)(9)这些方法支持`方法链操作`。函数式编程都是这样。
 
 ###  **2、其它API**
 
@@ -518,7 +534,7 @@ System.out.println(sb1);//空指针异常
 - **解析：**
   - **`public Date parse(String source)`**：从给定字符串的开始解析文本，以生成一个日期。
 
-![5.png](./4 常用类和基础API.assets/5.png)
+![5.png](./4 常用类和基础API.assets/常用类5.png)
 
 ```java
 //格式化
@@ -549,9 +565,9 @@ public void test2() throws ParseException{
 - **`Calendar` 类是一个抽象类，主用用于完成日期字段之间相互操作的功能。**
 - 获取Calendar实例的方法
   - 使用**`Calendar.getInstance()`方法**
-  - ![6.png](./4 常用类和基础API.assets/6.png)
+  - ![6.png](./4 常用类和基础API.assets/常用类6.png)
   - 调用它的**子类`GregorianCalendar`（公历）**的构造器。
-  - ![7.png](./4 常用类和基础API.assets/7.png)
+  - ![7.png](./4 常用类和基础API.assets/常用类7.png)
 
 - 一个Calendar的实例是系统时间的抽象表示，可以修改或获取 YEAR、MONTH、DAY_OF_WEEK、HOUR_OF_DAY 、MINUTE、SECOND等 `日历字段`对应的时间值。
   - **public int get(int field)**：返回给定日历字段的值
@@ -561,11 +577,13 @@ public void test2() throws ParseException{
   - **public final void setTime(Date date)**：**使用指定的Date对象重置Calendar的时间**
   - 常用字段
 
-![8.png](./4 常用类和基础API.assets/8.png)
+![8.png](./4 常用类和基础API.assets/常用类8.png)
 
 - 注意： 
   - 获取星期时：周日是1，周二是2 ， 。。。。周六是7
   - 获取月份时：一月是0，二月是1，以此类推，12月是11
+  
+  
 
 # 4. JDK8：新的日期时间API
 
@@ -601,7 +619,7 @@ public void test2() throws ParseException{
 
 ## 4.1 本地日期时间：`LocalDate`、`LocalTime`、`LocalDateTime`
 
-![9.png](./4 常用类和基础API.assets/9.png)
+![9.png](./4 常用类和基础API.assets/常用类9.png)
 
 ```java
 import org.junit.Test;
@@ -659,7 +677,7 @@ public class TestLocalDateTime {
   - 时间戳是指格林威治时间1970年01月01日00时00分00秒(北京时间1970年01月01日08时00分00秒)起至现在的总秒数。
 - **`java.time.Instant`**表示时间线上的一点，而不需要任何上下文信息，例如，时区。概念上讲，`它只是简单的表示自1970年1月1日0时0分0秒（UTC）开始的秒数。`
 
-![10.png](./4 常用类和基础API.assets/10.png)
+![10.png](./4 常用类和基础API.assets/常用类10.png)
 
 
 
@@ -684,7 +702,7 @@ public class TestLocalDateTime {
 
   
 
-  ![img](https://img-blog.csdnimg.cn/ec32b03446cc4fc1b1fca53e9adbf999.png)
+  ![image-20230912201355259](./4 常用类和基础API.assets/常用类17.png)
 
 ```java
 import org.junit.Test;
@@ -767,7 +785,7 @@ America/New_York
 
 ## 4.5 与传统日期处理的转换
 
-![11.png](./4 常用类和基础API.assets/11.png)
+![11.png](./4 常用类和基础API.assets/常用类11.png)
 
 # 5. Java比较器
 
@@ -998,7 +1016,7 @@ System.out.println(Arrays.toString(all));
   - **`void gc()`**： 该方法的作用是请求系统进行垃圾回收。至于系统是否立刻回收，则取决于系统中垃圾回收算法的实现以及系统执行时的情况。
   - **`String getProperty(String key)`**： 该方法的作用是获得系统中属性名为key的属性对应的值。系统中常见的属性名以及属性的作用如下表所示：
 
-![12.png](./4 常用类和基础API.assets/12.png)
+![12.png](./4 常用类和基础API.assets/常用类12.png)
 
 - **`static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length)`：**
 
